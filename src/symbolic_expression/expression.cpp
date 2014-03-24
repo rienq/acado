@@ -34,7 +34,6 @@
 #include <acado/symbolic_expression/expression.hpp>
 #include <acado/symbolic_expression/symbolic_expression.hpp>
 #include <acado/symbolic_expression/acado_syntax.hpp>
-#include <acado/symbolic_expression/constraint_component.hpp>
 #include <acado/function/function.hpp>
 
 BEGIN_NAMESPACE_ACADO
@@ -44,1659 +43,308 @@ BEGIN_NAMESPACE_ACADO
 //                                 IMPLEMENTATION OF THE CONSTRUCTORS:
 // ---------------------------------------------------------------------------------------------------
 
-Expression::Expression()
-{
-	construct(VT_UNKNOWN, 0, 0, 0, "");
-}
+ScalarExpression::ScalarExpression(){ element = SharedOperator( new Projection() ); }
 
-Expression::Expression(	const std::string& name_,
-						uint nRows_,
-						uint nCols_,
-						VariableType variableType_,
-						uint globalTypeID)
-{
-	construct(variableType_, globalTypeID, nRows_, nCols_, name_);
-}
-
-Expression::Expression( const std::string &name_ )
-{
-	construct(VT_UNKNOWN, 0, 0, 0, name_);
-}
-
-Expression::Expression( uint nRows_, uint nCols_, VariableType variableType_, uint globalTypeID){
-
-       construct( variableType_, globalTypeID, nRows_, nCols_, "" );
-   }
-
-Expression::Expression( int nRows_, int nCols_, VariableType variableType_, int globalTypeID){
-
-       construct( variableType_, globalTypeID, nRows_, nCols_, "" );
-   }
-
-Expression::Expression(const Operator &tree_)
-{
-	VariableType tmpType;
-	int tmpComp;
-
-	if (tree_.isVariable(tmpType, tmpComp) == BT_TRUE) {
-
-		construct(tmpType, tmpComp, 1, 1, "");
-	} else {
-
-		construct(VT_UNKNOWN, 0, 1, 1, "");
-	}
-
-	delete element[0];
-	element[0] = tree_.clone();
-}
-
-
-
-// ---------------------------------------------------------------------------------------------------
-//                                 IMPLEMENTATION OF THE CONSTRUCTORS:
-// ---------------------------------------------------------------------------------------------------
-
-
-   Expression::Expression( const double& rhs ){
-
-       nRows   = 1;
-       nCols   = 1;
-       dim     = 0;
-       element = 0;
-       assignmentSetup( convert(rhs) );
-   }
-
-   Expression::Expression( const DVector& rhs ){
-
-       nRows   = rhs.getDim();
-       nCols   = 1;
-       dim     = 0;
-       element = 0;
-       assignmentSetup( convert(rhs) );
-   }
-
-   Expression::Expression( const DMatrix& rhs ){
-
-       nRows   = rhs.getNumRows();
-       nCols   = rhs.getNumCols();
-       dim     = 0;
-       element = 0;
-       assignmentSetup( convert(rhs) );
-   }
-
-   Expression:: Expression( const Expression& rhs ){ copy     ( rhs ); }
-   Expression::~Expression(                       ){ deleteAll(     ); }
-
-
-
-// ---------------------------------------------------------------------------------------------------
-//               IMPLEMENTATION OF ELEMENTARY OPERATORS ON DOUBLE, VECTOR, AND MATRIX:
-// ---------------------------------------------------------------------------------------------------
-
-
-Expression&  Expression::operator= ( const double & arg )      { return operator= ( convert(arg)  ); }
-Expression&  Expression::operator= ( const DVector & arg )      { return operator= ( convert(arg)  ); }
-Expression&  Expression::operator= ( const DMatrix & arg )      { return operator= ( convert(arg)  ); }
-
-Expression&  Expression::operator<<( const double & arg )      { return operator<<( convert(arg)  ); }
-Expression&  Expression::operator<<( const DVector & arg )      { return operator<<( convert(arg)  ); }
-Expression&  Expression::operator<<( const DMatrix & arg )      { return operator<<( convert(arg)  ); }
-
-Expression   Expression::operator+ ( const double & arg ) const{ return operator+ ( convert(arg)  ); }
-Expression   Expression::operator+ ( const DVector & arg ) const{ return operator+ ( convert(arg)  ); }
-Expression   Expression::operator+ ( const DMatrix & arg ) const{ return operator+ ( convert(arg)  ); }
-
-Expression   Expression::operator- ( const double & arg ) const{ return operator- ( convert(arg)  ); }
-Expression   Expression::operator- ( const DVector & arg ) const{ return operator- ( convert(arg)  ); }
-Expression   Expression::operator- ( const DMatrix & arg ) const{ return operator- ( convert(arg)  ); }
-
-Expression   Expression::operator* ( const double & arg ) const{ return operator* ( convert(arg)  ); }
-Expression   Expression::operator* ( const DVector & arg ) const{ return operator* ( convert(arg)  ); }
-Expression   Expression::operator* ( const DMatrix & arg ) const{ return operator* ( convert(arg)  ); }
-
-Expression   Expression::operator/ ( const double & arg ) const{ return operator/ ( convert(arg)  ); }
-
-
-// -------------------------------------------------------------------------------------------------------------
-//                                 IMPLEMENTATION OF FREIND OPERATORS:
-// -------------------------------------------------------------------------------------------------------------
-
-Expression operator+( const double& arg1, const Expression& arg2 ){ return arg2.convert(arg1).operator+(arg2); }
-Expression operator+( const DVector& arg1, const Expression& arg2 ){ return arg2.convert(arg1).operator+(arg2); }
-Expression operator+( const DMatrix& arg1, const Expression& arg2 ){ return arg2.convert(arg1).operator+(arg2); }
-
-Expression operator-( const double& arg1, const Expression& arg2 ){ return arg2.convert(arg1).operator-(arg2); }
-Expression operator-( const DVector& arg1, const Expression& arg2 ){ return arg2.convert(arg1).operator-(arg2); }
-Expression operator-( const DMatrix& arg1, const Expression& arg2 ){ return arg2.convert(arg1).operator-(arg2); }
-
-Expression operator*( const double& arg1, const Expression& arg2 ){ return arg2.convert(arg1).operator*(arg2); }
-Expression operator*( const DVector& arg1, const Expression& arg2 ){ return arg2.convert(arg1).operator*(arg2); }
-Expression operator*( const DMatrix& arg1, const Expression& arg2 ){ return arg2.convert(arg1).operator*(arg2); }
-
-Expression operator/( const double& arg1, const Expression& arg2 ){ return arg2.convert(arg1).operator/(arg2); }
-Expression operator/( const DVector& arg1, const Expression& arg2 ){ return arg2.convert(arg1).operator/(arg2); }
-Expression operator/( const DMatrix& arg1, const Expression& arg2 ){ return arg2.convert(arg1).operator/(arg2); }
-
-
-
-ConstraintComponent Expression::operator<=( const double& ub ) const{
-
-    DVector ub_(getDim());
-    ub_.setAll(ub);
-
-    return operator<=(ub_);
-}
-
-ConstraintComponent Expression::operator>=( const double& lb ) const{
-
-    DVector lb_(getDim());
-    lb_.setAll(lb);
-
-    return operator>=(lb_);
-}
-
-ConstraintComponent Expression::operator==( const double& b ) const{
-
-    DVector b_(getDim());
-    b_.setAll(b);
-
-    return operator==(b_);
-}
-
-
-
-ConstraintComponent Expression::operator<=( const DVector& ub ) const{
-
-    ConstraintComponent tmp;
-
-    DVector lb = ub;
-    lb.setAll(-INFTY);
-
-    tmp.initialize( lb, *this, ub );
-
-    return tmp;
-}
-
-
-ConstraintComponent Expression::operator>=( const DVector& lb ) const{
-
-    ConstraintComponent tmp;
-
-    DVector ub = lb;
-    ub.setAll(INFTY);
-
-    tmp.initialize( lb, *this, ub );
-
-    return tmp;
-}
-
-
-ConstraintComponent Expression::operator==( const DVector& b ) const{
-
-    ConstraintComponent tmp;
-
-    tmp.initialize( b, *this, b );
-    return tmp;
-}
-
-
-
-ConstraintComponent Expression::operator<=( const VariablesGrid& ub ) const{
-
-    ConstraintComponent tmp;
-
-    VariablesGrid lb = ub;
-    lb.setAll(-INFTY);
-
-    tmp.initialize( lb, *this, ub );
-
-    return tmp;
-}
-
-
-ConstraintComponent Expression::operator>=( const VariablesGrid& lb ) const{
-
-    ConstraintComponent tmp;
-
-    VariablesGrid ub = lb;
-    ub.setAll(INFTY);
-
-    tmp.initialize( lb, *this, ub );
-
-    return tmp;
-}
-
-
-ConstraintComponent Expression::operator==( const VariablesGrid& b ) const{
-
-    ConstraintComponent tmp;
-
-    tmp.initialize( b, *this, b );
-    return tmp;
-}
-
-
-ConstraintComponent operator<=( double lb, const Expression &arg ){ return ( arg >= lb ); }
-ConstraintComponent operator>=( double ub, const Expression &arg ){ return ( arg <= ub ); }
-ConstraintComponent operator==( double  b, const Expression &arg ){ return ( arg == b  ); }
-
-ConstraintComponent operator<=( DVector lb, const Expression &arg ){ return ( arg >= lb ); }
-ConstraintComponent operator>=( DVector ub, const Expression &arg ){ return ( arg <= ub ); }
-ConstraintComponent operator==( DVector  b, const Expression &arg ){ return ( arg == b  ); }
-
-ConstraintComponent operator<=( VariablesGrid lb, const Expression &arg ){ return ( arg >= lb ); }
-ConstraintComponent operator>=( VariablesGrid ub, const Expression &arg ){ return ( arg <= ub ); }
-ConstraintComponent operator==( VariablesGrid b , const Expression &arg ){ return ( arg == b  ); }
-
-
-
-Expression& Expression::operator=( const Expression& rhs ){
-
-    if( this != &rhs ){
-
-        deleteAll();
-        copy(rhs);
-    }
-    return *this;
-
-//     if( dim == 0 ){
-//         nRows = rhs.getNumRows();
-//         nCols = rhs.getNumCols();
-//     }
-//     return assignmentSetup( rhs );
-}
-
-Expression&  Expression::appendRows(const Expression& arg) {
-	if (getDim()==0) {operator=(arg);return *this;}
-	ASSERT(arg.getNumCols() == getNumCols());
-	
-        uint run1;
-	uint oldDim = dim;
-	dim     += arg.dim;
-	nRows += arg.getNumRows();
-
-	if( arg.variableType != variableType )
-		variableType = VT_UNKNOWN;
-	element = (Operator**)realloc(element, dim*sizeof(Operator*) );
-	    
-	for( run1 = oldDim; run1 < dim; run1++ )
-		element[run1] = arg.element[run1-oldDim]->clone();
-	
-	return *this;
-}
-
-// this is still very unefficient code
-
-Expression& Expression::appendCols(const Expression& arg) {
-	if (getDim()==0) {operator=(arg);return *this;}
-	ASSERT(arg.getNumRows() == getNumRows());
-	
-	
-	Expression E(transpose());
-	E.appendRows(arg.transpose());
-	
-	operator=(E.transpose());
-	
-	return *this;
-}
-
-Expression& Expression::operator<<( const Expression& arg ){
+ScalarExpression::ScalarExpression( const double &element_ ){
   
-    if( dim == 0 ) return operator=(arg);
+   element = SharedOperator( new DoubleConstant(element_));
+}
 
-    uint run1;
-    uint oldDim = dim;
+ScalarExpression::ScalarExpression( const SharedOperator &element_ ){ element = element_; }
 
-    dim   += arg.dim  ;
-    nRows += arg.dim  ;
+ScalarExpression::ScalarExpression( const ScalarExpression &rhs ){
 
-    variableType = VT_VARIABLE;
+   element = rhs.element;
+}
 
-    if( arg.isVariable() == BT_FALSE ) variableType = VT_UNKNOWN;
+ScalarExpression::~ScalarExpression(){}
 
-    element = (Operator**)realloc(element, dim*sizeof(Operator*) );
-
-    for( run1 = oldDim; run1 < dim; run1++ )
-        element[run1] = arg.element[run1-oldDim]->clone();
-
+ScalarExpression& ScalarExpression::operator=( const ScalarExpression& arg ){
+  
+    if( &arg != this ){
+       element = arg.element;
+    }
     return *this;
 }
 
+ScalarExpression& ScalarExpression::operator+=( const ScalarExpression& arg ){ return operator=(element->myAdd     (element,arg.element));}
+ScalarExpression& ScalarExpression::operator-=( const ScalarExpression& arg ){ return operator=(element->mySubtract(element,arg.element));}
+ScalarExpression& ScalarExpression::operator*=( const ScalarExpression& arg ){ return operator=(element->myProd    (element,arg.element));}
+ScalarExpression& ScalarExpression::operator/=( const ScalarExpression& arg ){ return operator=(element->myQuotient(element,arg.element));}
 
-std::ostream& Expression::print(std::ostream& stream) const
-{
-	uint run1;
-	stream << "[ ";
-	if (dim) {
-		for (run1 = 0; run1 < dim - 1; run1++)
-			stream << *element[run1] << " , ";
-		stream << *element[dim - 1];
-	}
-	stream << "]";
+ScalarExpression& ScalarExpression::operator= ( const Expression& arg ){ ASSERT(arg.size() == 1); return operator= (arg(0)); }
+ScalarExpression& ScalarExpression::operator+=( const Expression& arg ){ ASSERT(arg.size() == 1); return operator+=(arg(0)); }
+ScalarExpression& ScalarExpression::operator-=( const Expression& arg ){ ASSERT(arg.size() == 1); return operator-=(arg(0)); }
+ScalarExpression& ScalarExpression::operator*=( const Expression& arg ){ ASSERT(arg.size() == 1); return operator*=(arg(0)); }
+ScalarExpression& ScalarExpression::operator/=( const Expression& arg ){ ASSERT(arg.size() == 1); return operator/=(arg(0)); }
 
-	return stream;
+ScalarExpression& ScalarExpression::operator= ( const double& arg ){ return operator= (ScalarExpression(arg)); }
+ScalarExpression& ScalarExpression::operator+=( const double& arg ){ return operator+=(ScalarExpression(arg)); }
+ScalarExpression& ScalarExpression::operator-=( const double& arg ){ return operator-=(ScalarExpression(arg)); }
+ScalarExpression& ScalarExpression::operator*=( const double& arg ){ return operator*=(ScalarExpression(arg)); }
+ScalarExpression& ScalarExpression::operator/=( const double& arg ){ return operator/=(ScalarExpression(arg)); }
+
+
+const ScalarExpression ScalarExpression::operator-( ) const{ 
+    return ScalarExpression( element->mySubtract( SharedOperator( new DoubleConstant(0.,NE_ZERO) ), element ) ); 
 }
 
-
-std::ostream& operator<<( std::ostream& stream, const Expression &arg )
-{
-    return arg.print(stream);
+const ScalarExpression ScalarExpression::operator+( const ScalarExpression& arg ) const{  
+    return ScalarExpression( element->myAdd(element,arg.element) );
 }
 
-
-
-Expression Expression::operator()( uint idx ) const{
-
-    ASSERT( idx < getDim( ) );
-
-    Expression tmp(1);
-
-    delete tmp.element[0];
-    tmp.element[0] = element[idx]->clone();
-
-    tmp.component    = component + idx;
-    tmp.variableType = variableType;
-
-    return tmp;
+const ScalarExpression ScalarExpression::operator-( const ScalarExpression  & arg ) const{
+    return  ScalarExpression( element->mySubtract(element,arg.element) );
 }
 
-Expression Expression::operator()( uint rowIdx, uint colIdx ) const{
-
-    ASSERT( rowIdx < getNumRows( ) );
-    ASSERT( colIdx < getNumCols( ) );
-
-    Expression tmp(1);
-
-    delete tmp.element[0];
-    tmp.element[0] = element[rowIdx*getNumCols()+colIdx]->clone();
-
-    tmp.component    = component + rowIdx*getNumCols() + colIdx;
-    tmp.variableType = variableType;
-
-    return tmp;
+const ScalarExpression ScalarExpression::operator*( const ScalarExpression& arg ) const{  
+    return ScalarExpression( element->myProd(element,arg.element) );
 }
 
-
-Operator& Expression::operator()( uint idx ){
-
-    switch( variableType ){
-
-        case  VT_INTERMEDIATE_STATE:
-              ASSERT( idx < getDim( ) );
-              return *element[idx];
-
-        case VT_UNKNOWN:
-              ASSERT( idx < getDim( ) );
-              delete  element[idx];
-              element[idx] = new TreeProjection();
-              return *element[idx];
-
-        default:
-              ASSERT( idx < getDim( ) );
-              return *element[idx];
-    }
-    ASSERT( 1 == 0 );
-    return *element[0];
+const ScalarExpression ScalarExpression::operator/( const ScalarExpression  & arg ) const{
+    return  ScalarExpression( element->myQuotient(element,arg.element) );
 }
 
-
-Operator& Expression::operator()( uint rowIdx, uint colIdx ){
-
-    switch( variableType ){
-
-        case  VT_INTERMEDIATE_STATE:
-              ASSERT( rowIdx < getNumRows( ) );
-              ASSERT( colIdx < getNumCols( ) );
-              return *element[rowIdx*getNumCols()+colIdx];
-
-//        case  VT_UNKNOWN:
-        default:
-              ASSERT( rowIdx < getNumRows( ) );
-              ASSERT( colIdx < getNumCols( ) );
-              delete  element[rowIdx*getNumCols()+colIdx];
-              element[rowIdx*getNumCols()+colIdx] = new TreeProjection();
-              return *element[rowIdx*getNumCols()+colIdx];
-
-//               ASSERT( 1 == 0 );
-//               return *element[0];
-    }
-    ASSERT( 1 == 0 );
-    return *element[0];
-}
-
-
-
-Expression Expression::operator+( const Expression& arg ) const{
-
-    ASSERT( getNumRows() == arg.getNumRows() );
-    ASSERT( getNumCols() == arg.getNumCols() );
-
-    uint i,j;
-
-    Expression tmp("", getNumRows(), getNumCols() );
-
-    for( i=0; i<getNumRows(); ++i ){
-        for( j=0; j<getNumCols(); ++j ){
-
-            delete tmp.element[i*getNumCols()+j];
-            if( element[i*getNumCols()+j]->isOneOrZero() != NE_ZERO ){
-                if( arg.element[i*getNumCols()+j]->isOneOrZero() != NE_ZERO )
-                    tmp.element[i*getNumCols()+j] = new Addition( element[i*getNumCols()+j]->clone(),
-                                                    arg.element[i*getNumCols()+j]->clone() );
-                else
-                    tmp.element[i*getNumCols()+j] = element[i*getNumCols()+j]->clone();
-            }
-            else{
-                if( arg.element[i*getNumCols()+j]->isOneOrZero() != NE_ZERO )
-                     tmp.element[i*getNumCols()+j] = arg.element[i*getNumCols()+j]->clone();
-                else tmp.element[i*getNumCols()+j] = new DoubleConstant(0.0,NE_ZERO);
-            }
-        }
-    }
-    return tmp;
-}
-
-
-Expression Expression::operator-( const Expression& arg ) const{
-
-    ASSERT( getNumRows() == arg.getNumRows() );
-    ASSERT( getNumCols() == arg.getNumCols() );
-
-    uint i,j;
-
-    Expression tmp("", getNumRows(), getNumCols() );
-
-    for( i=0; i<getNumRows(); ++i ){
-        for( j=0; j<getNumCols(); ++j ){
-
-            delete tmp.element[i*getNumCols()+j];
-            if( element[i*getNumCols()+j]->isOneOrZero() != NE_ZERO ){
-                if( arg.element[i*getNumCols()+j]->isOneOrZero() != NE_ZERO )
-                    tmp.element[i*getNumCols()+j] = new Subtraction( element[i*getNumCols()+j]->clone(),
-                                                    arg.element[i*getNumCols()+j]->clone() );
-                else
-                    tmp.element[i*getNumCols()+j] = element[i*getNumCols()+j]->clone();
-            }
-            else{
-                if( arg.element[i*getNumCols()+j]->isOneOrZero() != NE_ZERO )
-                     tmp.element[i*getNumCols()+j] = new Subtraction( new DoubleConstant(0.0,NE_ZERO),
-                                                                      arg.element[i*getNumCols()+j]->clone() );
-                else tmp.element[i*getNumCols()+j] = new DoubleConstant(0.0,NE_ZERO);
-            }
-        }
-    }
-    return tmp;
-}
-
-
-Operator* Expression::product( const Operator *a, const Operator *b ) const{
-
-
-    switch( a->isOneOrZero() ){
-
-        case NE_ZERO:
-             return new DoubleConstant( 0.0, NE_ZERO );
-
-        case NE_ONE:
-             return b->clone();
-
-        default:
-
-             switch( b->isOneOrZero() ){
-
-                 case NE_ZERO:
-                      return new DoubleConstant( 0.0, NE_ZERO );
-
-                 case NE_ONE:
-                      return a->clone();
-
-                 default:
-                      return new Product( a->clone(), b->clone() );
-             }
-    }
-    return 0;
-}
-
-
-
-Expression Expression::operator*( const Expression& arg ) const{
-    if (getDim()==0 || arg.getDim()==0) return Expression();
-    // uninitialized expressions yield uninitialized results
-
-    uint i,j,k;
-
-    if( getNumRows() == 1 && getNumCols( ) == 1 ){
-
-        Expression tmp("", arg.getNumRows(), arg.getNumCols() );
-
-        for( i = 0; i< arg.getDim(); i++ ){
-
-             delete tmp.element[i];
-             Operator *prod = product( element[0], arg.element[i] );
-             tmp.element[i] = prod->clone();
-
-             delete prod;
-        }
-        return tmp;
-    }
-
-
-    if( arg.getNumRows() == 1 && arg.getNumCols( ) == 1 ){
-
-        Expression tmp("", getNumRows(), getNumCols() );
-
-        for( i = 0; i< getDim(); i++ ){
-
-             delete tmp.element[i];
-             Operator *prod = product( arg.element[0], element[i] );
-             tmp.element[i] = prod->clone();
-
-             delete prod;
-        }
-        return tmp;
-    }
-
-
-    ASSERT( getNumCols( ) == arg.getNumRows( ) );
-
-    uint newNumRows = getNumRows( );
-    uint newNumCols = arg.getNumCols( );
-    IntermediateState tmp = zeros<double>( newNumRows, newNumCols );
-
-    for( i=0; i<newNumRows; ++i ){
-        for( j=0; j<newNumCols; ++j ){
-            for( k=0; k<getNumCols( ); ++k ){
-
-                 Operator *tmpO = product( element[i*getNumCols()+k],
-                                           arg.element[k*arg.getNumCols()+j] );
-
-                 if( tmpO->isOneOrZero() != NE_ZERO )
-                     tmp(i,j) += *tmpO;
-
-                 delete tmpO;
-            }
-        }
-    }
-    return tmp;
-}
-
-
-Expression Expression::operator/( const Expression& arg ) const{
-
-    ASSERT( arg.getNumRows() == 1 );
-    ASSERT( arg.getNumCols() == 1 );
-
-    uint i;
-
-    Expression tmp("", getNumRows(), getNumCols() );
-
-    for( i = 0; i< getDim(); i++ ){
-         delete tmp.element[i];
-         tmp.element[i] = new Quotient( element[i]->clone(), arg.element[0]->clone() );
-    }
-    return tmp;
-}
-
-
-
-Expression Expression::getInverse() const{
-
-    ASSERT( getNumRows() == getNumCols() );
-
-    int i,j,k;                 // must really be int, never use uint here.
-    int M = getNumRows();      // must really be int, never use uint here.
-
-	IntermediateState tmp("", M, 2 * M);
-
-    for( i = 0; i < M; i++ ){
-        for( j = 0; j < 2*M; j++ ){
-            if( j <  M   ) tmp(i,j) = operator()(i,j);
-            else           tmp(i,j) = 0.0        ;
-            if( j == M+i ) tmp(i,j) = 1.0        ;
-        }
-    }
-
-    for( i = 0; i < M-1; i++ )
-         for( k = i+1; k < M; k++ )
-             for( j = 2*M-1; j >= i; j-- )
-                  tmp(k,j) -= ( tmp(i,j)*tmp(k,i) )/tmp(i,i);
-
-    for( i = M-1; i > 0; i-- )
-        for( k = i-1; k >= 0; k-- )
-            for( j = 2*M-1; j >= i; j-- )
-                tmp(k,j) -= (tmp(i,j)*tmp(k,i))/tmp(i,i);
-
-    for( i = 0; i < M; i++ )
-        for( j = 2*M-1; j >= 0; j-- )
-             tmp(i,j) = tmp(i,j)/tmp(i,i);
-
-    Expression I("", M,M);
-    for( i = 0; i < M; i++ ){
-        for( j = 0; j < M; j++ ){
-            delete I.element[i*M+j];
-            I.element[i*M+j] = tmp.element[i*2*M+j+M]->clone();
-        }
-    }
-
-    return I;
-}
-
-
-Expression Expression::getRow( const uint& rowIdx ) const{
-
-    uint run1;
-    ASSERT( rowIdx < getNumRows() );
-
-    Expression tmp("", 1, (int) getNumCols() );
-
-    for( run1 = 0; run1 < getNumCols(); run1++ ){
-        delete tmp.element[run1];
-        tmp.element[run1] = element[rowIdx*getNumCols()+run1]->clone();
-    }
-    return tmp;
-}
-
-
-Expression Expression::getCol( const uint& colIdx ) const{
-
-    uint run1;
-    ASSERT( colIdx < getNumCols() );
-
-    Expression tmp("", (int) getNumRows(), 1 );
-
-    for( run1 = 0; run1 < getNumRows(); run1++ ){
-        delete tmp.element[run1];
-        tmp.element[run1] = element[run1*getNumCols()+colIdx]->clone();
-    }
-    return tmp;
-}
-
-
-DMatrix Expression::getDependencyPattern( const Expression& arg ) const{
-
-	DMatrix tmp;
-	if( arg.getDim() == 0 ) return tmp;
-
-    Function f;
-    f << backwardDerivative( *this, arg );
-
-//    FILE *test=fopen("test-getdep.txt","w");
-//    test << f;
-//    fclose(test);
+const ScalarExpression operator+( const double &arg1, const ScalarExpression& arg2 ){ return ScalarExpression(arg1)+arg2; }
+const ScalarExpression operator-( const double &arg1, const ScalarExpression& arg2 ){ return ScalarExpression(arg1)-arg2; }
+const ScalarExpression operator*( const double &arg1, const ScalarExpression& arg2 ){ return ScalarExpression(arg1)*arg2; }
+const ScalarExpression operator/( const double &arg1, const ScalarExpression& arg2 ){ return ScalarExpression(arg1)/arg2; }
+
+bool ScalarExpression::operator==( const ScalarExpression& arg ) const{
+  
+    bool a = acadoIsFinite(     element->getValue() );
+    bool b = acadoIsFinite( arg.element->getValue() );
+  
+    if ( !a || !b ) return element == arg.element;
     
-    double *x      = new double[ f.getNumberOfVariables()+1 ];
-    double *result = new double[ f.getDim()                 ];
+    return acadoIsEqual( element->getValue(), arg.element->getValue());
+}
 
-    // TODO: DANGEROUS CODE --> TALK TO MILAN ABOUT THIS
-    int run1;
-    srand(1.0);
-    for( run1 = 0; run1 < f.getNumberOfVariables()+1; run1++ )
-    	x[run1] = 1.0 + (double)rand() / RAND_MAX;
+bool ScalarExpression::operator!=( const ScalarExpression& arg ) const{ return !(element == arg.element); }
 
-    // EVALUATE f AT THE POINT  (tt,xx):
-    // ---------------------------------
-    f.evaluate( 0, x, result );
+bool ScalarExpression::operator<=( const ScalarExpression& arg ) const{
+  
+    bool a = acadoIsFinite(     element->getValue() );
+    bool b = acadoIsFinite( arg.element->getValue() );
+  
+    if ( !a && !b ) return element.get() <= arg.element.get();
+    if ( !a &&  b ) return false;
+    if (  a && !b ) return true;
+    
+    return acadoIsSmaller( element->getValue() , arg.element->getValue() );
+}
 
-    tmp = DMatrix( getDim(), arg.getDim(), result );
+bool ScalarExpression::operator< ( const ScalarExpression& arg ) const{
 
-    delete[] result;
-    delete[] x;
+    bool a = acadoIsFinite(     element->getValue() );
+    bool b = acadoIsFinite( arg.element->getValue() );
+  
+    if ( !a && !b ) return element.get() < arg.element.get();
+    if ( !a &&  b ) return false;
+    if (  a && !b ) return true;
 
-    return tmp;
+    return acadoIsStrictlySmaller( element->getValue() , arg.element->getValue() );
+}
+
+bool ScalarExpression::operator>=( const ScalarExpression& arg ) const{ return !operator< (arg); }
+bool ScalarExpression::operator> ( const ScalarExpression& arg ) const{ return !operator<=(arg); }
+
+
+const ScalarExpression ScalarExpression::getSin    ( ) const{ return ScalarExpression( element->mySin      (element) ); }
+const ScalarExpression ScalarExpression::getCos    ( ) const{ return ScalarExpression( element->myCos      (element) ); }
+const ScalarExpression ScalarExpression::getTan    ( ) const{ return ScalarExpression( element->myTan      (element) ); }
+const ScalarExpression ScalarExpression::getAsin   ( ) const{ return ScalarExpression( element->myAsin     (element) ); }
+const ScalarExpression ScalarExpression::getAcos   ( ) const{ return ScalarExpression( element->myAcos     (element) ); }
+const ScalarExpression ScalarExpression::getAtan   ( ) const{ return ScalarExpression( element->myAtan     (element) ); }
+const ScalarExpression ScalarExpression::getExp    ( ) const{ return ScalarExpression( element->myExp      (element) ); }
+const ScalarExpression ScalarExpression::getSqrt   ( ) const{ return ScalarExpression( element->mySqrt     (element) ); }
+const ScalarExpression ScalarExpression::getLn     ( ) const{ return ScalarExpression( element->myLogarithm(element) ); }
+
+const ScalarExpression ScalarExpression::getPow   ( const ScalarExpression &arg ) const{return ScalarExpression( element->myPower(element,arg.element) );}
+const ScalarExpression ScalarExpression::getPowInt( const int        &arg ) const{return ScalarExpression( element->myPowerInt(element,arg     ) );}
+
+
+SharedOperatorMap2 ScalarExpression::ADsymmetric( const ScalarExpression &l,
+                                                  SharedOperatorMap &dfS, SharedOperatorMap &ldf ) const{
+
+    SharedOperatorMap2 H  ;
+    SharedOperatorMap2 LIS;
+    SharedOperatorMap2 SIS;
+    SharedOperatorMap3 HIS;
+    
+    SharedOperator seed = l.element;
+    element->initDerivative();
+    element->AD_symmetric( seed, ldf, dfS, H, LIS, SIS, HIS );
+
+    return H;
+}
+
+const ScalarExpression ScalarExpression::AD_forward ( const Expression &arg, const Expression &seed ) const{
+  
+   ASSERT( arg.size() == seed.size() );
+   SharedOperatorMap Seed;
+   
+   for( int i=0; i<arg.size(); ++i )
+       Seed[(arg(i).element).get()] = seed(i).element;
+   element->initDerivative();
+   
+   return ScalarExpression( element->AD_forward(Seed) );
 }
 
 
-
-Expression Expression::getSin( ) const{
-
-	Expression tmp("", nRows, nCols);
-    uint run1;
-
-    for( run1 = 0; run1 < dim; run1++ ){
-        delete tmp.element[run1];
-        tmp.element[run1] = new Sin( element[run1]->clone() ); 
-    }
-    return tmp;
-}
-
-Expression Expression::getCos( ) const{
-
-	Expression tmp("", nRows, nCols);
-    uint run1;
-
-    for( run1 = 0; run1 < dim; run1++ ){
-        delete tmp.element[run1];
-        tmp.element[run1] = new Cos( element[run1]->clone() ); 
-    }
-    return tmp;
-}
-
-Expression Expression::getTan( ) const{
-
-	Expression tmp("", nRows, nCols);
-    uint run1;
-
-    for( run1 = 0; run1 < dim; run1++ ){
-        delete tmp.element[run1];
-        tmp.element[run1] = new Tan( element[run1]->clone() ); 
-    }
-    return tmp;
-}
-
-Expression Expression::getAsin( ) const{
-
-	Expression tmp("", nRows, nCols);
-    uint run1;
-
-    for( run1 = 0; run1 < dim; run1++ ){
-        delete tmp.element[run1];
-        tmp.element[run1] = new Asin( element[run1]->clone() ); 
-    }
-    return tmp;
-}
-
-Expression Expression::getAcos( ) const{
-
-	Expression tmp("", nRows, nCols);
-    uint run1;
-
-    for( run1 = 0; run1 < dim; run1++ ){
-        delete tmp.element[run1];
-        tmp.element[run1] = new Acos( element[run1]->clone() ); 
-    }
-    return tmp;
-}
-
-Expression Expression::getAtan( ) const{
-
-	Expression tmp("", nRows, nCols);
-    uint run1;
-
-    for( run1 = 0; run1 < dim; run1++ ){
-        delete tmp.element[run1];
-        tmp.element[run1] = new Atan( element[run1]->clone() ); 
-    }
-    return tmp;
-}
-
-Expression Expression::getExp( ) const{
-
-	Expression tmp("", nRows, nCols);
-    uint run1;
-
-    for( run1 = 0; run1 < dim; run1++ ){
-        delete tmp.element[run1];
-        tmp.element[run1] = new Exp( element[run1]->clone() ); 
-    }
-    return tmp;
-}
-
-Expression Expression::getSqrt( ) const{
-
-	Expression tmp("", nRows, nCols);
-    uint run1;
-
-    for( run1 = 0; run1 < dim; run1++ ){
-        delete tmp.element[run1];
-        tmp.element[run1] = new Power( element[run1]->clone(), new DoubleConstant( 0.5, NE_NEITHER_ONE_NOR_ZERO ) ); 
-    }
-    return tmp;
-}
-
-Expression Expression::getLn( ) const{
-
-	Expression tmp("", nRows, nCols);
-    uint run1;
-
-    for( run1 = 0; run1 < dim; run1++ ){
-        delete tmp.element[run1];
-        tmp.element[run1] = new Logarithm( element[run1]->clone() ); 
-    }
-    return tmp;
+SharedOperatorMap ScalarExpression::AD_backward( const ScalarExpression &seed_ ) const{
+  
+    SharedOperatorMap  df;
+    SharedOperatorMap2 IS;
+    SharedOperator seed = seed_.element;
+    element->initDerivative();
+    element->AD_backward( seed, df, IS );
+    return df;
 }
 
 
-Expression Expression::getPow( const Expression& arg ) const{
-
-    ASSERT( arg.getDim() == 1 );
-
-    Expression tmp("", nRows, nCols);
-    uint run1;
-
-    for( run1 = 0; run1 < dim; run1++ ){
-        delete tmp.element[run1];
-        tmp.element[run1] = new Power( element[run1]->clone(), arg.element[0]->clone() ); 
-    }
-    return tmp;
-}
-
-
-Expression Expression::getPowInt( const int &arg ) const{
-
-	Expression tmp("", nRows, nCols);
-    uint run1;
-
-    for( run1 = 0; run1 < dim; run1++ ){
-        delete tmp.element[run1];
-        tmp.element[run1] = new Power_Int( element[run1]->clone(), arg );
-    }
-    return tmp;
-}
-
-
-
-Expression Expression::transpose( ) const{
-
-	Expression tmp("", getNumCols(), getNumRows());
-
-    uint run1, run2;
-
-    for( run1 = 0; run1 < getNumRows(); run1++ ){
-        for( run2 = 0; run2 < getNumCols(); run2++ ){
-             delete tmp.element[run2*getNumRows()+run1];
-             tmp.element[run2*getNumRows()+run1] = element[run1*getNumCols()+run2]->clone();
-        }
-    }
-    return tmp;
-}
-
-
-
-Expression Expression::getSumSquare( ) const{
-
-    uint run1;
-
-    Expression result = transpose().operator*(*this);
-
-    CurvatureType c = CT_CONSTANT;
-    CurvatureType cc;
-
-    for( run1 = 0; run1 < getDim(); run1++ ){
-
-        cc = element[run1]->getCurvature();
-
-        if( cc != CT_CONSTANT ){
-            if( cc == CT_AFFINE &&
-                (c == CT_CONSTANT || c == CT_AFFINE) )
-                 c = CT_AFFINE;
-            else c = CT_NEITHER_CONVEX_NOR_CONCAVE;
-        }
-    }
-
-    if( c == CT_CONSTANT )
-        result.element[0]->setCurvature(CT_CONSTANT);
-
-    if( c == CT_AFFINE )
-        result.element[0]->setCurvature(CT_CONVEX);
-
-    return result;
-
-}
-
-
-Expression Expression::getLogSumExp( ) const{
-
-    uint run1;
-
-    Expression result;
-    result = exp( operator()(0) );
-
-    for( run1 = 1; run1 < getDim(); run1++ )
-        result = result + exp( operator()(run1) );
-
-    result = ln( result );
-
-    CurvatureType c = CT_CONSTANT;
-    CurvatureType cc;
-
-    for( run1 = 0; run1 < getDim(); run1++ ){
-
-        cc = element[run1]->getCurvature();
-
-        if( cc != CT_CONSTANT ){
-            if( cc == CT_AFFINE ){
-                if( c == CT_CONSTANT || c == CT_AFFINE )
-                    c = CT_AFFINE;
-                else{
-                    if( c == CT_CONVEX ){
-                        c = CT_CONVEX;
-                    }
-                    else{
-                        c = CT_NEITHER_CONVEX_NOR_CONCAVE;
-                    }
-                }
-            }
-            else{
-                if( cc == CT_CONVEX &&
-                    (c == CT_CONSTANT || c == CT_AFFINE || c == CT_CONVEX ) )
-                     c = CT_CONVEX;
-                else
-                     c = CT_NEITHER_CONVEX_NOR_CONCAVE;
-            }
-        }
-    }
-
-    if( c == CT_CONSTANT )
-        result.element[0]->setCurvature(CT_CONSTANT);
-
-    if( c == CT_AFFINE || c == CT_CONVEX )
-        result.element[0]->setCurvature(CT_CONVEX);
-
-    return result;
-}
-
-
-Expression Expression::getEuclideanNorm( ) const{
-
-    uint run1;
-
-    Expression result = sqrt( getSumSquare() );
-
-    CurvatureType c = CT_CONSTANT;
-    CurvatureType cc;
-
-    for( run1 = 0; run1 < getDim(); run1++ ){
-
-        cc = element[run1]->getCurvature();
-
-        if( cc != CT_CONSTANT ){
-            if( cc == CT_AFFINE &&
-                (c == CT_CONSTANT || c == CT_AFFINE) )
-                 c = CT_AFFINE;
-            else c = CT_NEITHER_CONVEX_NOR_CONCAVE;
-        }
-    }
-
-    if( c == CT_CONSTANT )
-        result.element[0]->setCurvature(CT_CONSTANT);
-
-    if( c == CT_AFFINE )
-        result.element[0]->setCurvature(CT_CONVEX);
-
-    return result;
-}
-
-
-
-
-Expression Expression::getEntropy( ) const{
-
-    ACADOWARNING( RET_NOT_IMPLEMENTED_YET );
-    return *this;
-}
-
-
-Expression Expression::getDot( ) const{
-
-    if( variableType != VT_DIFFERENTIAL_STATE ){
-
-        ACADOERROR( RET_INVALID_ARGUMENTS );
-        ASSERT( 1 == 0 );
-    }
-
-    Expression tmp("", getNumRows(), getNumCols(), VT_DDIFFERENTIAL_STATE, component );
-    return tmp;
-}
-
-
-Expression Expression::getNext( ) const{
-
-    return getDot();
-}
-
-
-Expression Expression::ADforward ( const Expression &arg ) const{
-
-    ASSERT(     getNumCols() == 1 );
-    ASSERT( arg.getNumCols() == 1 );
-
-	Expression result("", getNumRows(), arg.getNumRows());
-
-    uint run1, run2;
-
-    Expression seed( arg.getNumRows() );
-
-    for( run1 = 0; run1 < arg.getNumRows(); run1++ ){
-
-        delete seed.element[run1];
-        seed.element[run1] = new DoubleConstant( 1.0, NE_ONE );
-
-        Expression tmp = ADforward( arg, seed );
-
-        delete seed.element[run1];
-        seed.element[run1] = new DoubleConstant( 0.0, NE_ZERO );
-
-        for( run2 = 0; run2 < getNumRows(); run2++ ){
-            delete result.element[run2*arg.getNumRows()+run1];
-            result.element[run2*arg.getNumRows()+run1] = tmp.element[run2]->clone();
-        }
-    }
-
-    return result;
-}
-
-
-Expression Expression::ADforward ( const VariableType &varType_, const int *arg, int nV ) const{
+BooleanType ScalarExpression::isVariable( ) const{
  
-    ASSERT( getNumCols() == 1 );
-
-	Expression result("", (int) getNumRows(), nV);
-
-    int run1, run2;
-
-    IntermediateState seed( nV );
-
-    for( run1 = 0; run1 < nV; run1++ ) seed(run1) = 0;
-
-    for( run1 = 0; run1 < nV; run1++ ){
-
-        seed(run1) = 1.0;
-
-        Expression tmp = ADforward( varType_, arg, seed );
-
-        seed(run1) = 0.0;
-
-        for( run2 = 0; run2 < (int) getNumRows(); run2++ ){
-            delete result.element[run2*nV+run1];
-            result.element[run2*nV+run1] = tmp.element[run2]->clone();
-        }
-    }
-    return result;
+    Projection *p = dynamic_cast<Projection *>(element.get());
+    return p != 0;
 }
 
 
+// =====================================================================
+//
+//               IMPLEMENTATION OF THE EXPRESSION CLASS
+//
+// =====================================================================
 
-Expression Expression::ADbackward ( const Expression &arg ) const{
 
-    ASSERT(     getNumCols() == 1 );
-    ASSERT( arg.getNumCols() == 1 );
+Expression::Expression( const int &nRows, const int &nCols ) : Base(nRows,nCols){ }
 
-	Expression result("", getNumRows(), arg.getNumRows());
+Expression::Expression( const ScalarExpression &arg ) : Base(1,1){ operator()(0,0) = arg; }
 
-    uint run1, run2;
-
-    Expression seed( getNumRows() );
-
-    for( run1 = 0; run1 < getNumRows(); run1++ ){
-
-        delete seed.element[run1];
-        seed.element[run1] = new DoubleConstant( 1.0, NE_ONE );
-
-        Expression tmp = ADbackward( arg, seed );
-
-        delete seed.element[run1];
-        seed.element[run1] = new DoubleConstant( 0.0, NE_ZERO );
-
-        for( run2 = 0; run2 < arg.getNumRows(); run2++ ){
-            delete result.element[run1*arg.getNumRows()+run2];
-            result.element[run1*arg.getNumRows()+run2] = tmp.element[run2]->clone();
-        }
-    }
-
-    return result;
+Expression::Expression( const DMatrix &arg ) : Base(arg.rows(),arg.cols()){
+  
+  for( int i=0; i<arg.size(); ++i )operator()(i) = ScalarExpression( (double) arg(i) );
 }
 
-
-Expression Expression::ADforward ( const Expression &arg, const Expression &seed ) const{
-
-    unsigned int run1;
-    const unsigned int n = arg.getDim();
-
-    ASSERT( arg .isVariable() == BT_TRUE );
-    ASSERT( seed.getDim    () == n       );
-
-    VariableType *varType   = new VariableType[n];
-    int          *Component = new int[n];
-
-    for( run1 = 0; run1 < n; run1++ ){
-    	arg.element[run1]->isVariable(varType[run1],Component[run1]);
-    }
-
-	Expression result = ADforward( varType, Component, seed );
-    delete[] Component;
-    delete[] varType;
-
-    return result;
+Expression::Expression( const double &arg ) : Base(1,1){
+  
+  operator()(0) = ScalarExpression(arg);
 }
 
-
-Expression Expression::ADforward (  const VariableType &varType_,
-								   	   const int          *arg     ,
-								   	   const Expression   &seed      ) const{
-
-	VariableType *varType = new VariableType[seed.getDim()];
-	for( uint run1 = 0; run1 < seed.getDim(); run1++ ) varType[run1] = varType_;
-	Expression tmp = ADforward( varType, arg, seed );
-	delete[] varType;
-	return tmp;
+Expression Expression::operator,( const Expression &arg ) const{
+  
+    Expression result(*this);
+    return result.appendRows(arg);
 }
 
-
-Expression Expression::ADforward ( const VariableType *varType_,
-								   const int          *arg     ,
-								   const Expression   &seed      ) const{
-
-    unsigned int run1, run2;
-    const unsigned int n = seed.getDim();
-
-	Expression result("", getNumRows(), getNumCols());
-
-    VariableType  *varType   = new VariableType[n];
-    int           *Component = new int         [n];
-    Operator     **seed1     = new Operator*   [n];
-
-    for( run1 = 0; run1 < n; run1++ ){
-        varType  [run1] = varType_[run1];
-        Component[run1] = arg[run1];
-        seed1    [run1] = seed.element[run1]->clone();
+Expression& Expression::appendRows( const Expression &arg ){
+  
+    if (size() == 0){
+        Base::operator=(arg);
+        return *this;
     }
+    ASSERT(Base::cols() == arg.cols());
 
-    for( run1 = 0; run1 < getDim(); run1++ ){
+    int oldRows = Base::rows();
+    int argRows = arg.rows();
 
-        delete result.element[run1];
+    Base::conservativeResize(oldRows+argRows, Base::cols());
+    Base::block(oldRows, 0, argRows, Base::cols()) = arg;
 
-        int Dim = n;
-        int nIS = 0;
-        TreeProjection **IS = 0;
-
-        element[run1]->initDerivative();
-        result.element[run1] = element[run1]->AD_forward( Dim, varType, Component, seed1, nIS, &IS );
-
-        for( run2 = 0; (int) run2 < nIS; run2++ ){
-            if( IS[run2] != 0 ){
-                delete IS[run2];
-            }
-        }
-        if( IS != 0 )
-            free(IS);
-    }
-
-    delete[] varType  ;
-    delete[] Component;
-
-    for( run1 = 0; run1 < n; run1++ )
-        delete seed1[run1];
-
-    delete[] seed1;
-
-    return result;
+    return *this;
 }
 
+Expression& Expression::appendCols( const Expression &arg ){
 
-Expression Expression::getODEexpansion( const int &order, const int *arg ) const{
+    if (size() == 0){
+        Base::operator=(arg);
+        return *this;
+    }
+    ASSERT(Base::rows() == arg.rows());
+
+    int oldCols = Base::cols();
+    int argCols = arg.cols();
+
+    Base::conservativeResize(Base::rows(), oldCols + argCols);
+    Base::block(0, oldCols, Base::rows(), argCols) = arg;
+
+    return *this;
+}
+
+Expression Expression::AD_backward( const Expression &arg, const Expression &seed ) const{
  
-	IntermediateState coeff("", (int) dim, order+2 );
-	
-    VariableType  *vType = new VariableType[dim*(order+1)+1];
-    int           *Comp  = new int         [dim*(order+1)+1];
-    Operator     **seed  = new Operator*   [dim*(order+1)+1];
-	
-	Operator **der = new Operator*[dim*(order+1)];
-	
-	vType[0] = VT_TIME;
-	Comp [0] = 0      ;
-	seed [0] = new DoubleConstant( 1.0 , NE_ONE );
-	
-	for( uint i=0; i<dim; i++ ){
-		coeff(i,0)   = Expression("",1,1,VT_DIFFERENTIAL_STATE,arg[i]);
-		coeff(i,1)   = operator()(i);
-		vType[i+1]   = VT_DIFFERENTIAL_STATE;
-		Comp [i+1]   = arg[i];
-		seed [i+1]   = coeff.element[(order+2)*i+1];
-		der[i]       = element[i]->clone();
-	}
-	
-	int nIS = 0;
-	TreeProjection **IS = 0;
-	
-	for( int j=0; j<order; j++ ){
-		for( uint i=0; i<dim; i++ ){
-			der[dim*j+i]->initDerivative();
-			der[dim*(j+1)+i] = der[dim*j+i]->AD_forward( (j+1)*dim+1, vType, Comp, seed, nIS, &IS );
-		}
-		for( uint i=0; i<dim; i++ ){
-			coeff(i,j+2) = *der[dim*(j+1)+i];
-			vType[dim*(j+1)+i+1] = VT_INTERMEDIATE_STATE;
-			Comp [dim*(j+1)+i+1] = coeff.element[(order+2)*i+j+1]->getGlobalIndex();
-			seed [dim*(j+1)+i+1] = coeff.element[(order+2)*i+j+2];
-		}
-	}
-	
-	for( int run = 0; run < nIS; run++ ){
-		
-		if( IS[run] != 0 ) delete IS[run];
-	}
-	if( IS != 0 ) free(IS);
-	
-	delete[] vType;
-	delete[] Comp;
-	for( uint i=0; i<dim*(order+1); i++ ) delete der[i];
-	delete[] der;
-	delete seed[0];
-	delete[] seed;
-	
-	return coeff;
-}
-
-
-
-Expression Expression::ADbackward( const Expression &arg, const Expression &seed ) const{
-
-    int Dim = arg.getDim();
-    int run1, run2;
-
-    ASSERT( arg .isVariable() == BT_TRUE  );
-    ASSERT( seed.getDim    () == getDim() );
-
-	Expression result("", arg.getNumRows(), arg.getNumCols());
-
-    VariableType *varType   = new VariableType[Dim];
-    int          *Component = new int         [Dim];
-    Operator    **iresult   = new Operator*   [Dim];
-
-    for( run1 = 0; run1 < Dim; run1++ ){
-        arg.element[run1]->isVariable(varType[run1],Component[run1]);
-    }
-
-	int nIS = 0;
-	TreeProjection **IS = 0;
-	
-    for( run1 = 0; run1 < (int) getDim(); run1++ ){
-
-        Operator *seed1 = seed.element[run1]->clone();
-
-        for( run2 = 0; run2 < Dim; run2++ )
-             iresult[run2] = new DoubleConstant(0.0,NE_ZERO);
-
-        element[run1]->initDerivative();
-        element[run1]->AD_backward( Dim, varType, Component, seed1, iresult, nIS, &IS );
-
-        for( run2 = 0; run2 < Dim; run2++ ){
-            Operator *sum = result.element[run2]->clone();
-            delete result.element[run2];
-            result.element[run2] = new Addition( sum->clone(), iresult[run2]->clone() );
-            delete sum;
-            delete iresult[run2];
-        }
-    }
-
-
-	for( int run = 0; run < nIS; run++ ){
-		
-		if( IS[run] != 0 ) delete IS[run];
-	}
-	if( IS != 0 ) free(IS);
+    ASSERT( size() == seed.size() );
     
-    delete[] iresult   ;
-    delete[] varType   ;
-    delete[] Component ;
+    Expression tmp = zeros<double>(arg.size());
+    SharedOperatorMap df;
+    
+    for( int i=0; i<size(); ++i ){
 
-    return result;
-}
+         df = operator()(i).AD_backward(seed(i));
 
-Expression Expression::ADsymmetric( 	const Expression &arg, /** argument      */
-					const Expression &S  , /** forward seed  */
-					const Expression &l  , /** backward seed */
-					Expression *dfS,    /** first order forward  result */
-					Expression *ldf   /** first order backward result */ ) const{
-
-	int Dim = arg.getDim();
-	ASSERT( (int) S.getNumRows() == Dim      );
-	ASSERT( (int) S.getNumRows() == (int) S.getNumCols() );
-	
-	IntermediateState H    = ADsymmetric( arg, l, dfS, ldf );
-	IntermediateState sum  = zeros<double>(Dim,Dim);
-	IntermediateState sum2 = zeros<double>(Dim,Dim);
-	
-	int i,j,k;
-	for( i=0; i<Dim; i++ )
-		for( j=0; j<Dim; j++ ){
-			for( k=0; k<=i; k++ ){
-				sum(i,j) += H(i,k)*S(k,j);
-			}
-			for( k=i+1; k<Dim; k++ ){
-				sum(i,j) += H(k,i)*S(k,j);
-			}
-		}
-
-	for( i=0; i<Dim; i++ )
-		for( j=0; j<=i; j++ )
-			for( k=0; k<Dim; k++ )
-				sum2(i,j) += S(k,i)*sum(k,j);
-
-	for( i=0; i<Dim; i++ )
-		for( j=0; j<i; j++ )
-			sum2(j,i) = sum2(i,j);
-
-	if( dfS != 0 ) {
-		// multiplication with the proper forward seeds:
-		*dfS = *dfS*S;
-	}
-	  
-	return sum2;
-}
-
-
-Expression Expression::ADsymmetric( 	const Expression &arg, /** argument      */
-					const Expression &l  , /** backward seed */
-					Expression *dfS,    /** first order forward  result */
-					Expression *ldf   /** first order backward result */ ) const{
-
-	int Dim = arg.getDim();
-	int nS  = Dim;
-	int run1, run2;
-	
-	Expression S = eye<double>(Dim);
-	
-	ASSERT( arg .isVariable()    == BT_TRUE  );
-	ASSERT( l.getDim()           == getDim() );
-	
-	Expression result( nS, nS );
-
-	VariableType *varType   = new VariableType[Dim];
-	int          *Component = new int         [Dim];
-	Operator    **dS        = new Operator*   [nS];
-	Operator    **ld        = new Operator*   [Dim];
-	Operator    **H         = new Operator*   [nS*nS];
-
-	for( run1 = 0; run1 < Dim; run1++ ){
-		arg.element[run1]->isVariable(varType[run1],Component[run1]);
-	}
-
-	int nLIS = 0;
-	int nSIS = 0;
-	int nHIS = 0;
-	TreeProjection **LIS = 0;
-	TreeProjection **SIS = 0;
-	TreeProjection **HIS = 0;
-
-	Expression tmp((int) getDim(),Dim);
-	Expression tmp2(Dim);
-	
-	for( run1 = 0; run1 < (int) getDim(); run1++ ){
-
-		Operator *l1 = l.element[run1]->clone();
-		Operator **S1 = new Operator*[Dim*nS];
-
-		for( run2 = 0; run2 < Dim*nS; run2++ )
-			S1[run2] = S.element[run2]->clone();
-
-		for( run2 = 0; run2 < nS; run2++ )
-			dS[run2] = new DoubleConstant(0.0,NE_ZERO);
-
-		for( run2 = 0; run2 < Dim; run2++ )
-			ld[run2] = new DoubleConstant(0.0,NE_ZERO);
-
-		for( run2 = 0; run2 < nS*nS; run2++ )
-			H[run2] = new DoubleConstant(0.0,NE_ZERO);
-
-		element[run1]->initDerivative();
-		element[run1]->AD_symmetric( Dim, varType, Component, l1, S1, nS, dS, ld, H, nLIS, &LIS, nSIS, &SIS, nHIS, &HIS );
-
-		int run3 = 0;
-
-		for( run2 = 0; run2 < nS; run2++ ){
-			for( run3 = 0; run3 < run2; run3++ ){
-				Operator *sum = result.element[run2*nS+run3]->clone();
-				delete result.element[run2*nS+run3];
-				delete result.element[run3*nS+run2];
-				result.element[run2*nS+run3] = sum->myAdd( sum, H[run2*nS+run3] );
-				result.element[run3*nS+run2] = sum->myAdd( sum, H[run2*nS+run3] );
-				delete sum;
-			}
-			Operator *sum = result.element[run2*nS+run2]->clone();
-			delete result.element[run2*nS+run2];
-			result.element[run2*nS+run2] = sum->myAdd( sum, H[run2*nS+run2] );
-			delete sum;
-		}
-
-		if( dfS != 0 ){
-			for( run2 = 0; run2 < nS; run2++ ){
-				delete tmp.element[run1*nS+run2];
-				tmp.element[run1*nS+run2] = dS[run2]->clone();
-			}
-		}
-
-		if( ldf != 0 ){
-		   for( run2 = 0; run2 < nS; run2++ ){
-			Operator *sum = tmp2.element[run2]->clone();
-			delete tmp2.element[run2];
-			tmp2.element[run2] = sum->myAdd( sum, ld[run2] );
-			delete sum;
-		  }
-		}
-
-		for( run2 = 0; run2 < Dim*nS; run2++ )
-			delete S1[run2];
-
-		for( run2 = 0; run2 < nS; run2++ )
-			delete dS[run2];
-
-		for( run2 = 0; run2 < Dim; run2++ )
-			delete ld[run2];
-
-		for( run2 = 0; run2 < nS*nS; run2++ )
-			delete H[run2];
-
-		delete[] S1;
-	}
-
-	if( dfS != 0 ) *dfS = tmp ;
-	if( ldf != 0 ) *ldf = tmp2;
-	
-	
-	for( int run = 0; run < nLIS; run++ ){
-		if( LIS[run] != 0 ) delete LIS[run];
-	}
-	if( LIS != 0 ) free(LIS);
-
-	for( int run = 0; run < nSIS; run++ ){
-		if( SIS[run] != 0 ) delete SIS[run];
-	}
-	if( SIS != 0 ) free(SIS);
-
-	for( int run = 0; run < nHIS; run++ ){
-		if( HIS[run] != 0 ) delete HIS[run];
-	}
-	if( HIS != 0 ) free(HIS);
-
-	delete[] dS        ;
-	delete[] ld        ;
-	delete[] H         ;
-	delete[] varType   ;
-	delete[] Component ;
-
-	return result;
-}
-
-
-returnValue Expression::substitute( int idx, const Expression &arg ) const{
-
-    ASSERT( arg.getDim() == 1 );
-
-    uint i;
-    for( i = 0; i < getDim(); i++ )
-        if( element[i] != 0 ) element[i]->substitute( idx, arg.element[0] );
-
-    return SUCCESSFUL_RETURN;
-}
-
-
-Expression Expression::operator-() const{
-
-    uint run1, run2;
-	Expression tmp("", getNumRows(), getNumCols());
-
-    for( run1 = 0; run1 < getNumRows(); run1++ ){
-        for( run2 = 0; run2 < getNumCols(); run2++ ){
-             delete tmp.element[run1*getNumCols()+run2];
-             tmp.element[run1*getNumCols()+run2] = new Subtraction( new DoubleConstant(0.0,NE_ZERO),
-                                                                    element[run1*getNumCols()+run2]->clone() );
-        }
+         for( int j=0; j<arg.size(); ++j )
+              tmp(j).element = arg(0).element->myAdd( arg(0).element->checkForZero( tmp(j).element          ),
+                                                      arg(0).element->checkForZero( df[arg(j).element.get()])  );
     }
     return tmp;
 }
 
+Expression Expression::AD_symmetric( const Expression &arg, const Expression &seed,
+                                     Expression *dfS , Expression *ldf ) const{
 
 
-
-
-//
-// PROTECTED MEMBER FUNCTIONS:
-//
-
-void Expression::construct( VariableType variableType_, uint globalTypeID, uint nRows_, uint nCols_, const std::string &name_ ){
-
-    nRows        = nRows_       ;
-    nCols        = nCols_       ;
-    dim          = nRows*nCols  ;
-    variableType = variableType_;
-    component    = globalTypeID ;
-    name         = name_        ;
-
-    uint i;
-    element = (Operator**)calloc(dim,sizeof(Operator*));
-
-    for( i = 0; i < dim; i++ ){
-
-        switch( variableType ){
-            case VT_UNKNOWN           : element[i] = new DoubleConstant( 0.0, NE_ZERO ); break;
-            case VT_INTERMEDIATE_STATE:
-                                        element[i] = new TreeProjection( "" );
-                                        break;
-            default                   : element[i] = new Projection( variableType_, globalTypeID+i, "" ); break;
-        }
-    }
-}
-
-
-void Expression::copy( const Expression &rhs ){
-
-    nRows        = rhs.nRows       ;
-    nCols        = rhs.nCols       ;
-    dim          = rhs.dim         ;
-    variableType = rhs.variableType;
-    component    = rhs.component   ;
+    ASSERT( size() == seed.size() );
     
-    uint i;
-    element = (Operator**)calloc(dim,sizeof(Operator*));
+    Expression tmp = zeros<double>(arg.size(),arg.size());
+//     SharedOperatorMap  D;
+//     SharedOperatorMap  L;
+//     SharedOperatorMap2 H;
+//     
+//     for( int i=0; i<size(); ++i ){
+// 
+//          H = operator()(i).AD_symmetric(seed(i),D,L);
+// 
+//          for( int j=0; j<arg.size(); ++j )
+//              for( int k=0; k<arg.size(); ++k )
+//                  tmp(j,k).element = arg(0).element->myAdd( arg(0).element->checkForZero( tmp(j).element          ),
+//                                                       arg(0).element->checkForZero( df[arg(j).element.get()])  );
+//     }
+    return tmp;
+/*				       
+				       
+				       SharedOperatorMap2 ScalarExpression::ADsymmetric( const ScalarExpression &l,
+                                                  SharedOperatorMap &dfS, SharedOperatorMap &ldf ) const{*/
 
-    for( i = 0; i < dim; i++ ){
-         if( rhs.element[i] != 0 )  element[i] = rhs.element[i]->clone();
-         else                       element[i] = 0;
+}
+
+
+BooleanType Expression::isVariable( ) const{
+ 
+    for( int i=0; i<size(); ++i ){
+        if(operator()(i).isVariable() == BT_FALSE ) return BT_FALSE;
     }
-	
-	// Name not copied?
+    return BT_TRUE;
 }
 
-
-void Expression::deleteAll( ){
-
-    uint i;
-
-    for( i = 0; i < dim; i++ )
-        if( element[i] != 0 )
-            delete element[i];
-
-    if( element != 0 ) free(element);
-}
-
-
-Expression& Expression::assignmentSetup( const Expression &arg ){
-
-    ASSERT( nRows == arg.getNumRows() && nCols == arg.getNumCols() );
-
-    deleteAll();
-    nRows        = arg.getNumRows()     ;
-    nCols        = arg.getNumCols()     ;
-    dim          = nRows*nCols          ;
-    variableType = VT_INTERMEDIATE_STATE;
-
-    element = (Operator**)calloc(dim,sizeof(Operator*));
-
-    VariableType tt = VT_UNKNOWN; int comp = 0;
-
-    for( uint i = 0; i < dim; i++ ){
-
-		arg.element[i]->isVariable(tt, comp);
-		if (tt == VT_INTERMEDIATE_STATE)
-			element[i] = arg.element[i]->clone();
-		else
-		{
-			std::stringstream tmpName;
-			if (name.empty() == false)
-			{
-				if (dim > 1)
-					tmpName << name << "[" << i << "]";
-				else
-					tmpName << name;
-			}
-			element[i] = (arg.getTreeProjection(i, tmpName.str())).clone();
-		}
+std::vector<NeutralElement> Expression::isOneOrZero() const{
+ 
+    std::vector<NeutralElement> ne(size());
+    for( int i=0; i<size(); ++i ){
+        ne[i] = operator()(i).element->isOneOrZero();
     }
-    return *this;
+    return ne;
 }
 
-
-Expression Expression::convert( const double& arg ) const{
-
-     Expression tmp("", 1, 1);
-     delete tmp.element[0];
-
-     tmp.element[0] = new DoubleConstant( arg, NE_NEITHER_ONE_NOR_ZERO );
-     return tmp;
+BooleanType Expression::isSmooth() const{
+ 
+    for( int i=0; i<size(); ++i ){
+        if( operator()(i).element->isSmooth() == BT_FALSE )
+            return BT_FALSE;
+    }
+    return BT_TRUE;
 }
-
-
-Expression Expression::convert( const DVector& arg ) const{
-
-     uint run1;
-     Expression tmp("", arg.getDim(), 1);
-
-     for( run1 = 0; run1 < arg.getDim(); run1++ ){
-         delete tmp.element[run1];
-         tmp.element[run1] = new DoubleConstant( arg(run1), NE_NEITHER_ONE_NOR_ZERO );
-     }
-     return tmp;
-}
-
-
-Expression Expression::convert( const DMatrix& arg ) const{
-
-     uint run1,run2;
-	Expression tmp("", arg.getNumRows(), arg.getNumCols());
-
-     for( run1 = 0; run1 < arg.getNumRows(); run1++ ){
-         for( run2 = 0; run2 < arg.getNumCols(); run2++ ){
-             delete tmp.element[arg.getNumCols()*run1+run2];
-             tmp.element[arg.getNumCols()*run1+run2] = new DoubleConstant( arg(run1,run2), NE_NEITHER_ONE_NOR_ZERO );
-         }
-     }
-     return tmp;
-}
-
-
-BooleanType Expression::isDependingOn( VariableType type ) const{
-
-    uint run1;
-
-    for( run1 = 0; run1 < getDim(); run1++ )
-        if( element[run1]->isDependingOn(type) == BT_TRUE )
-            return BT_TRUE;
-
-    return BT_FALSE;
-}
-
-
-
-BooleanType Expression::isDependingOn( const Expression &e ) const{
-    ASSERT( e.getDim() ==1 );
-    DVector sum=getDependencyPattern(e).sumRow();
-
-    if( fabs(sum(0) - EPS) > 0 ) return BT_TRUE;
-    return BT_FALSE;
-}
-
+  
+  
 
 CLOSE_NAMESPACE_ACADO
 

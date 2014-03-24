@@ -60,45 +60,26 @@ public:
     Tan();
 
     /** Default constructor. */
-    Tan( Operator *_argument );
+    Tan( const SharedOperator &_argument );
 
-    /** Copy constructor (deep copy). */
+    /** Copy constructor. */
     Tan( const Tan &arg );
 
     /** Default destructor. */
     ~Tan();
 
-    /** Assignment Operator (deep copy). */
-    Tan& operator=( const Tan &arg );
+    /** Evaluates the expression (templated version) */
+    virtual returnValue evaluate( EvaluationBase *x );
 
-
-	/** Evaluates the expression (templated version) */
-	virtual returnValue evaluate( EvaluationBase *x );
-
-
-
-    /** Substitutes var(index) with the expression sub.           \n
-     *  \return The substituted expression.                       \n
+    /** Substitutes key with the expression sub. \n
+     *  \return The substituted expression.      \n
      *
      */
-     virtual Operator* substitute( int   index           /**< subst. index    */,
-                                     const Operator *sub /**< the substitution*/);
+    virtual SharedOperator substitute( SharedOperatorMap &sub /**< the substitution */ );
 
+    /** Initializes the derivative operators */
+    virtual returnValue initDerivative();
 
-     /** Provides a deep copy of the expression. \n
-      *  \return a clone of the expression.      \n
-      */
-     virtual Operator* clone() const;
-
-     virtual returnValue initDerivative();
-
-
-
-//
-//  PROTECTED FUNCTIONS:
-//
-
-protected:
 };
 
 

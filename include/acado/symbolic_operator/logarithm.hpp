@@ -60,55 +60,25 @@ public:
     Logarithm();
 
     /** Default constructor. */
-    Logarithm( Operator *_argument );
+    Logarithm( const SharedOperator &_argument );
 
-    /** Copy constructor (deep copy). */
+    /** Copy constructor. */
     Logarithm( const Logarithm &arg );
 
     /** Default destructor. */
     ~Logarithm();
 
-    /** Assignment Operator (deep copy). */
-    Logarithm& operator=( const Logarithm &arg );
+    /** Evaluates the expression (templated version) */
+    virtual returnValue evaluate( EvaluationBase *x );
 
-
-	/** Evaluates the expression (templated version) */
-	virtual returnValue evaluate( EvaluationBase *x );
-
-
-
-    /** Substitutes var(index) with the expression sub.           \n
-     *  \return The substituted expression.                       \n
+    /** Substitutes key with the expression sub. \n
+     *  \return The substituted expression.      \n
      *
      */
-     virtual Operator* substitute( int   index           /**< subst. index    */,
-                                     const Operator *sub /**< the substitution*/);
+    virtual SharedOperator substitute( SharedOperatorMap &sub /**< the substitution */ );
 
-
-     /** Provides a deep copy of the expression. \n
-      *  \return a clone of the expression.      \n
-      */
-     virtual Operator* clone() const;
-
-
-    /** Returns the curvature of the expression                   \n
-     *  \return CT_CONSTANT                                       \n
-     *          CT_AFFINE                                         \n
-     *          CT_CONVEX                                         \n
-     *          CT_CONCAVE                                        \n
-     *
-     */
-     virtual CurvatureType getCurvature( );
-
-
-     virtual returnValue initDerivative();
-
-
-//
-//  PROTECTED FUNCTIONS:
-//
-
-protected:
+    /** Initializes the derivative operators */
+    virtual returnValue initDerivative();
 
 };
 

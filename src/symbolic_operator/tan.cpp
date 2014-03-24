@@ -36,66 +36,15 @@
 #include <acado/symbolic_operator/symbolic_operator.hpp>
 
 
-double dTan(double x){
-  double v1 = tan(x);
-  return 1+v1*v1;
-}
-
-double ddTan(double x){
-  double v1 = tan(x);
-  return 2*v1*(1+v1*v1);
-}
-
 BEGIN_NAMESPACE_ACADO
 
+Tan::Tan():UnaryOperator(){}
 
+Tan::Tan( const SharedOperator &_argument ):UnaryOperator(_argument,"tan"){}
 
+Tan::Tan( const Tan &arg ):UnaryOperator(arg){}
 
-Tan::Tan():UnaryOperator(){
-  cName = "tan";
-
-  fcn = &tan;
-  dfcn = &dTan;
-  ddfcn = &ddTan;
-
-  operatorName = ON_TAN;
-
-}
-
-Tan::Tan( Operator *_argument ):UnaryOperator(_argument){
-  cName = "tan";
-
-  fcn = &tan;
-  dfcn = &dTan;
-  ddfcn = &ddTan;
-
-  operatorName = ON_TAN;
-}
-
-
-Tan::Tan( const Tan &arg ):UnaryOperator(arg){
-  cName = "tan";
-
-  fcn = &tan;
-  dfcn = &dTan;
-  ddfcn = &ddTan;
-
-  operatorName = ON_TAN;
-}
-
-
-Tan::~Tan(){
-
-}
-
-
-Tan& Tan::operator=( const Tan &arg ){
-
-  UnaryOperator::operator=(arg);
-
-  return *this;
-}
-
+Tan::~Tan(){}
 
 returnValue Tan::evaluate( EvaluationBase *x ){
 
@@ -103,28 +52,23 @@ returnValue Tan::evaluate( EvaluationBase *x ){
     return SUCCESSFUL_RETURN;
 }
 
-Operator* Tan::substitute( int index, const Operator *sub ){
+SharedOperator Tan::substitute( SharedOperatorMap &sub ){
 
-    return new Tan( argument->substitute( index , sub ) );
-
+    return SharedOperator( new Tan( argument->substitute(sub) ));
 }
 
-Operator* Tan::clone() const{
-
-    return new Tan(*this);
-}
 
 returnValue Tan::initDerivative() {
 
 	if( derivative != 0 && derivative2 != 0 ) return SUCCESSFUL_RETURN;
 
-	derivative = convert2TreeProjection(new Quotient( new DoubleConstant( 1.0 , NE_ONE ), new Power_Int( new Cos( argument->clone() ), 2 ) ));
-	derivative2 = convert2TreeProjection(new Quotient(    new Product(
-			new DoubleConstant( 2.0 , NE_NEITHER_ONE_NOR_ZERO ),
-			new Tan(argument->clone())
-	),
-			new Power_Int( new Cos( argument->clone() ), 2 )
-	));
+	derivative = convert2TreeProjection( SharedOperator( new Quotient( SharedOperator( new DoubleConstant( 1.0 , NE_ONE )), SharedOperator( new Power_Int( SharedOperator( new Cos( argument )), 2 )) )));
+	derivative2 = convert2TreeProjection(SharedOperator( new Quotient(   SharedOperator(  new Product(
+			SharedOperator( new DoubleConstant( 2.0 , NE_NEITHER_ONE_NOR_ZERO )),
+			SharedOperator( new Tan(argument))
+	)),
+			SharedOperator( new Power_Int( SharedOperator( new Cos( argument )), 2 ))
+	)));
 
 	return argument->initDerivative();
 }

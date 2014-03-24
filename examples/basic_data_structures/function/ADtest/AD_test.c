@@ -89,8 +89,8 @@ void initializeX( double* x ) {
 
 typedef struct ACADOworkspace_
 {
-/** Column vector of size: 400 */
-double acado_aux[ 800 ];
+/** Column vector of size: 2000 */
+double acado_aux[ 2000 ];
 
 
 } ACADOworkspace;

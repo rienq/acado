@@ -52,12 +52,11 @@ int main( )
 	// DEFINE A TEST FUNCTION:
 	// -----------------------
 
-	IntermediateState ff;
-	IntermediateState a;
-	ff = sin(x(0)*x(1));
+	Expression ff;
+	ff = pow(x(0)*cos(x(1)),3);
 
 	f << ff;
-	f << forwardDerivative(ff,x);
+	f << backwardDerivative(ff,x);
 
 	ofstream stream( "symbolic_differentiation3_output.txt" );
 	stream << f;

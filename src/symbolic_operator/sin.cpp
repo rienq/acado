@@ -36,59 +36,16 @@
 #include <acado/symbolic_operator/symbolic_operator.hpp>
 
 
-double ddSin(double x){
-  return -sin(x);
-}
-
-
 BEGIN_NAMESPACE_ACADO
 
 
-Sin::Sin():UnaryOperator(){
-  cName = "sin";
+Sin::Sin():UnaryOperator(){}
 
-  fcn = &sin;
-  dfcn = &cos;
-  ddfcn = &ddSin;
+Sin::Sin( const SharedOperator &_argument ):UnaryOperator(_argument,"sin"){}
 
-  operatorName = ON_SIN;
+Sin::Sin( const Sin &arg ):UnaryOperator(arg){}
 
-}
-
-Sin::Sin( Operator *_argument ):UnaryOperator(_argument){
-  cName = "sin";
-
-  fcn = &sin;
-  dfcn = &cos;
-  ddfcn = &ddSin;
-
-  operatorName = ON_SIN;
-}
-
-
-Sin::Sin( const Sin &arg ):UnaryOperator(arg){
-  cName = "sin";
-
-  fcn = &sin;
-  dfcn = &cos;
-  ddfcn = &ddSin;
-
-  operatorName = ON_SIN;
-}
-
-
-Sin::~Sin(){
-
-}
-
-
-Sin& Sin::operator=( const Sin &arg ){
-
-  UnaryOperator::operator=(arg);
-
-  return *this;
-}
-
+Sin::~Sin(){}
 
 returnValue Sin::evaluate( EvaluationBase *x ){
 
@@ -97,15 +54,10 @@ returnValue Sin::evaluate( EvaluationBase *x ){
 }
 
 
-Operator* Sin::substitute( int index, const Operator *sub ){
+SharedOperator Sin::substitute( SharedOperatorMap &sub ){
 
-    return new Sin( argument->substitute( index , sub ) );
+    return SharedOperator( new Sin( argument->substitute(sub) ));
 
-}
-
-Operator* Sin::clone() const{
-
-    return new Sin(*this);
 }
 
 returnValue Sin::initDerivative() {
@@ -114,8 +66,8 @@ returnValue Sin::initDerivative() {
 		return SUCCESSFUL_RETURN;
 	}
 
-	derivative = convert2TreeProjection(new Cos(argument->clone()));
-	derivative2 = convert2TreeProjection(new Product( new DoubleConstant( -1.0 , NE_NEITHER_ONE_NOR_ZERO ), new Sin(argument->clone()) ));
+	derivative = convert2TreeProjection( SharedOperator( new Cos(argument)));
+	derivative2 = convert2TreeProjection( SharedOperator( new Product( SharedOperator( new DoubleConstant( -1.0 , NE_NEITHER_ONE_NOR_ZERO )), SharedOperator( new Sin(argument)) )));
 
 	return argument->initDerivative();
 }

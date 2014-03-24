@@ -36,63 +36,16 @@
 #include <acado/symbolic_operator/symbolic_operator.hpp>
 
 
-double dLogarithm(double x){
-  return 1/x;
-}
-
-
-double ddLogarithm(double x){
-  return -1/x/x;
-}
-
 BEGIN_NAMESPACE_ACADO
 
 
-Logarithm::Logarithm():UnaryOperator(){
-  cName = "log";
+Logarithm::Logarithm():UnaryOperator(){}
 
-  fcn = &log;
-  dfcn = &dLogarithm;
-  ddfcn = &ddLogarithm;
+Logarithm::Logarithm( const SharedOperator &_argument ):UnaryOperator(_argument,"log"){}
 
-  operatorName = ON_LOGARITHM;
+Logarithm::Logarithm( const Logarithm &arg ):UnaryOperator(arg){}
 
-}
-
-Logarithm::Logarithm( Operator *_argument ):UnaryOperator(_argument){
-  cName = "log";
-
-  fcn = &log;
-  dfcn = &dLogarithm;
-  ddfcn = &ddLogarithm;
-
-  operatorName = ON_LOGARITHM;
-}
-
-
-Logarithm::Logarithm( const Logarithm &arg ):UnaryOperator(arg){
-  cName = "log";
-
-  fcn = &log;
-  dfcn = &dLogarithm;
-  ddfcn = &ddLogarithm;
-
-  operatorName = ON_LOGARITHM;
-}
-
-
-Logarithm::~Logarithm(){
-
-}
-
-
-Logarithm& Logarithm::operator=( const Logarithm &arg ){
-
-  UnaryOperator::operator=(arg);
-
-  return *this;
-}
-
+Logarithm::~Logarithm(){}
 
 returnValue Logarithm::evaluate( EvaluationBase *x ){
  
@@ -100,39 +53,18 @@ returnValue Logarithm::evaluate( EvaluationBase *x ){
     return SUCCESSFUL_RETURN;
 }
 
+SharedOperator Logarithm::substitute( SharedOperatorMap &sub ){
 
+    return SharedOperator( new Logarithm( argument->substitute(sub) ));
 
-Operator* Logarithm::substitute( int index, const Operator *sub ){
-
-    return new Logarithm( argument->substitute( index , sub ) );
-
-}
-
-Operator* Logarithm::clone() const{
-
-    return new Logarithm(*this);
-}
-
-
-CurvatureType Logarithm::getCurvature( ){
-
-    if( curvature != CT_UNKNOWN )  return curvature;
-
-    const CurvatureType cc = argument->getCurvature();
-
-    if( cc == CT_CONSTANT )  return CT_CONSTANT;
-    if( cc == CT_AFFINE   )  return CT_CONCAVE ;
-    if( cc == CT_CONCAVE  )  return CT_CONCAVE ;
-
-    return CT_NEITHER_CONVEX_NOR_CONCAVE;
 }
 
 returnValue Logarithm::initDerivative() {
 
 	if( derivative != 0 && derivative2 != 0 ) return SUCCESSFUL_RETURN;
 
-	derivative = convert2TreeProjection(new Power_Int( argument->clone(), -1 ));
-	derivative2 = convert2TreeProjection(new Product( new DoubleConstant( -1.0 , NE_NEITHER_ONE_NOR_ZERO ), new Power_Int( argument->clone(), -2 ) ));
+	derivative = convert2TreeProjection( SharedOperator( new Power_Int( argument, -1 )));
+	derivative2 = convert2TreeProjection( SharedOperator( new Product( SharedOperator( new DoubleConstant( -1.0 , NE_NEITHER_ONE_NOR_ZERO )),SharedOperator( new Power_Int( argument, -2 ) ))));
 
 	return argument->initDerivative();
 }

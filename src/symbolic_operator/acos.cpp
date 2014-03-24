@@ -35,64 +35,17 @@
 #include <acado/utils/acado_utils.hpp>
 #include <acado/symbolic_operator/symbolic_operator.hpp>
 
-double dAcos(double x){
-  return -1/sqrt(1-x*x);
-}
-
-
-double ddAcos(double x){
-  double v1 = sqrt(1-x*x);
-  return 2*x*(-0.5/v1/v1/v1);
-}
 
 BEGIN_NAMESPACE_ACADO
 
 
-Acos::Acos():UnaryOperator(){
-  cName = "acos";
+Acos::Acos():UnaryOperator(){ }
 
-  fcn = &acos;
-  dfcn = &dAcos;
-  ddfcn = &ddAcos;
+Acos::Acos( const SharedOperator &_argument ):UnaryOperator(_argument,"acos"){ }
 
-  operatorName = ON_ACOS;
+Acos::Acos( const Acos &arg ):UnaryOperator(arg){ }
 
-}
-
-Acos::Acos( Operator *_argument ):UnaryOperator(_argument){
-  cName = "acos";
-
-  fcn = &acos;
-  dfcn = &dAcos;
-  ddfcn = &ddAcos;
-
-  operatorName = ON_ACOS;
-}
-
-
-Acos::Acos( const Acos &arg ):UnaryOperator(arg){
-  cName = "acos";
-
-  fcn = &acos;
-  dfcn = &dAcos;
-  ddfcn = &ddAcos;
-
-  operatorName = ON_ACOS;
-}
-
-
-Acos::~Acos(){
-
-}
-
-
-Acos& Acos::operator=( const Acos &arg ){
-
-  UnaryOperator::operator=(arg);
-
-  return *this;
-}
-
+Acos::~Acos(){ }
 
 returnValue Acos::evaluate( EvaluationBase *x ){
  
@@ -100,16 +53,10 @@ returnValue Acos::evaluate( EvaluationBase *x ){
     return SUCCESSFUL_RETURN;
 }
 
+    
+SharedOperator Acos::substitute( SharedOperatorMap &sub ){
 
-Operator* Acos::substitute( int index, const Operator *sub ){
-
-    return new Acos( argument->substitute( index , sub ) );
-
-}
-
-Operator* Acos::clone() const{
-
-    return new Acos(*this);
+    return SharedOperator( new Acos( argument->substitute(sub) ) );
 }
 
 returnValue Acos::initDerivative() {
@@ -117,40 +64,40 @@ returnValue Acos::initDerivative() {
 	if( derivative != 0 && derivative2 != 0 ) return SUCCESSFUL_RETURN;
 
 	derivative = convert2TreeProjection(
-			new Product( new DoubleConstant( -1.0 , NE_NEITHER_ONE_NOR_ZERO ),
-					new Power(
-							new Addition(
-									new DoubleConstant(1.0 , NE_ONE),
-									new Product(
-											new DoubleConstant( -1.0, NE_NEITHER_ONE_NOR_ZERO),
-											new Power_Int(
-													argument->clone(),
+			SharedOperator( new Product( SharedOperator( new DoubleConstant( -1.0 , NE_NEITHER_ONE_NOR_ZERO )),
+					SharedOperator( new Power(
+							SharedOperator( new Addition(
+									SharedOperator( new DoubleConstant(1.0 , NE_ONE)),
+									SharedOperator( new Product(
+											SharedOperator( new DoubleConstant( -1.0, NE_NEITHER_ONE_NOR_ZERO)),
+											SharedOperator( new Power_Int(
+													argument,
 													2
-											)
-									)
-							),
-							new DoubleConstant( -0.5 , NE_NEITHER_ONE_NOR_ZERO )
-					)
-			));
+											))
+									))
+							)),
+							SharedOperator( new DoubleConstant( -0.5 , NE_NEITHER_ONE_NOR_ZERO ))
+					))
+			)));
 	derivative2 = convert2TreeProjection(
-			new Product( new DoubleConstant( -1.0 , NE_NEITHER_ONE_NOR_ZERO ),
-					new Product(
-							new Power(
-									new Addition(
-											new DoubleConstant(1.0 , NE_ONE),
-											new Product(
-													new DoubleConstant( -1.0, NE_NEITHER_ONE_NOR_ZERO),
-													new Power_Int(
-															argument->clone(),
+			SharedOperator( new Product( SharedOperator( new DoubleConstant( -1.0 , NE_NEITHER_ONE_NOR_ZERO )),
+					SharedOperator( new Product(
+							SharedOperator( new Power(
+									SharedOperator( new Addition(
+											SharedOperator( new DoubleConstant(1.0 , NE_ONE)),
+											SharedOperator( new Product(
+													SharedOperator( new DoubleConstant( -1.0, NE_NEITHER_ONE_NOR_ZERO)),
+													SharedOperator( new Power_Int(
+															argument,
 															2
-													)
-											)
-									),
-									new DoubleConstant( -1.5 , NE_NEITHER_ONE_NOR_ZERO )
-							),
-							argument->clone()
-					)
-			));
+													))
+											))
+									)),
+									SharedOperator( new DoubleConstant( -1.5 , NE_NEITHER_ONE_NOR_ZERO ))
+							)),
+							argument
+					))
+			)));
 
 	return argument->initDerivative();
 }

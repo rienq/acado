@@ -93,121 +93,35 @@ Expression returnLowerTriangular( const Expression& expr ) {
 /* >>> start tutorial code >>> */
 int main( ){
     
-    DifferentialState   xT;     // the trolley position
-    DifferentialState   vT;     // the trolley velocity
-    IntermediateState   aT;     // the trolley acceleration
-    DifferentialState   xL;     // the cable length
-    DifferentialState   vL;     // the cable velocity
-    IntermediateState   aL;     // the cable acceleration
-    DifferentialState   phi;    // the excitation angle
-    DifferentialState   omega;  // the angular velocity
-        
-    DifferentialState   uT;     // trolley velocity control
-    DifferentialState   uL;     // cable velocity control
-
-    Control             duT;
-    Control             duL;
-
-    //
-    // DEFINE THE PARAMETERS:
-    //
-    const double      tau1 = 0.012790605943772;
-    const double      a1   = 0.047418203070092;
-    const double      tau2 = 0.024695192379264;
-    const double      a2   = 0.034087337273386;
-    const double      g = 9.81;       		
-    const double      c = 0.2;        		
-    const double      m = 1318.0;     		
+    DifferentialState   x1;     
+    DifferentialState   x2;    
+   		
 
     //
     // DEFINE THE MODEL EQUATIONS:
     //
-    DifferentialEquation   f, f2, test_expr;
+    DifferentialEquation   f, f2;
     ExportAcadoFunction    fun, fun2;
-    
-    aT = -1.0 / tau1 * vT + a1 / tau1 * uT;
-    aL = -1.0 / tau2 * vL + a2 / tau2 * uL;
 
     Expression states;
-    states << xT;
-    states << vT;
-    states << xL;
-    states << vL;
-    states << phi;
-    states << omega;
-    states << uT;
-    states << uL;
+    states << x1;
+    states << x2;
     
-    Expression controls;
-    controls << duT;
-    controls << duL;
+    Expression expr;
+    expr << sin(x1*x2);
     
-    Expression arg;
-    arg << states;
-    arg << controls;
+    f << symmetricDerivative(expr,states,eye<double>(2.2),1.0);
     
-    int NX = states.getDim();
-    int NU = controls.getDim();
+    Expression back = backwardDerivative(expr, states);
+    f2 << forwardDerivative(back.transpose(), states);
     
-    IntermediateState expr(2);
+    fun.init(f, "symmetric", 2, 0, 0, 0, 0, 0);
     
-    expr(0) = - 1.0/xL*(-g*sin(phi)-aT*cos(phi)-2*vL*omega-c*omega/(m*xL)) + log(duT/duL)*pow(xL,2);
-    expr(1) = - 1.0/xL*(-g*tan(phi)-aT*acos(phi)-2*atan(vL)*omega-c*asin(omega)/exp(xL)) + duT/pow(omega,3);
-    //~ expr(0) = - 1.0/xL*(-g*sin(phi));
-    //~ expr(1) = duT/pow(omega,3);
-						
-	DifferentialState lambda("", expr.getDim(),1);
-	DifferentialState Sx("", states.getDim(),states.getDim());
-	DifferentialState Su("", states.getDim(),controls.getDim());
-	Expression S = Sx;
-	S.appendCols(Su);
-	
-	// SYMMETRIC DERIVATIVES
-	Expression S_tmp = S;
-	S_tmp.appendRows(zeros<double>(NU,NX).appendCols(eye<double>(NU)));
-    
-	IntermediateState dfS,dl;
-	
-    Expression f_tmp = symmetricDerivative( expr, arg, S_tmp, lambda, &dfS, &dl );
-    f << returnLowerTriangular( f_tmp );
-    
-    fun.init(f, "symmetricDerivative", NX*(1+NX+NU)+expr.getDim(), 0, 2, 0, 0, 0);
-    
-	// ALTERNATIVE DERIVATIVES
-    IntermediateState tmp = backwardDerivative( expr, states, lambda );
-    IntermediateState tmp2 = forwardDerivative( tmp, states );
-    Expression tmp3 = backwardDerivative( expr, controls, lambda );
-	Expression tmp4 = multipleForwardDerivative( tmp3, states, Su );
-	Expression tmp5 = tmp4 + tmp4.transpose() + forwardDerivative( tmp3, controls );
-		
-	Expression f2_tmp1;
-	f2_tmp1 = symmetricDoubleProduct( tmp2, Sx );  f2_tmp1.appendCols( zeros<double>(NX,NU) );
-    
-    Expression f2_tmp2;
-    f2_tmp2 = Su.transpose()*tmp2*Sx + multipleForwardDerivative( tmp3, states, Sx );
-    f2_tmp2.appendCols( symmetricDoubleProduct( tmp2, Su ) + tmp5 );
-    
-    f2_tmp1.appendRows( f2_tmp2 );
-    f2 << returnLowerTriangular( f2_tmp1 );
-    
-    
-    fun2.init(f2, "alternativeSymmetric", NX*(1+NX+NU)+expr.getDim(), 0, 2, 0, 0, 0);
-    
-    Function f1;
-    
-    f1 << dfS;
-    f1 << dl;
-    
-    std::ofstream stream2( "ADtest/ADsymbolic_output2.c" );
-    stream2 << f1;
-    stream2.close();
+    fun2.init(f2, "FOB", 2, 0, 0, 0, 0, 0);
     
     std::ofstream stream( "ADtest/ADsymbolic_output.c" );
     fun.exportCode( stream, "double" );
     fun2.exportCode( stream, "double" );
-    
-    test_expr << expr;
-    stream << test_expr;
     
     stream.close();
 

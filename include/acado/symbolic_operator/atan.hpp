@@ -60,48 +60,29 @@ public:
     Atan();
 
     /** Default constructor. */
-    Atan( Operator *_argument );
+    Atan( const SharedOperator &_argument );
 
-    /** Copy constructor (deep copy). */
+    /** Copy constructor. */
     Atan( const Atan &arg );
 
     /** Default destructor. */
     ~Atan();
 
-    /** Assignment Operator (deep copy). */
-    Atan& operator=( const Atan &arg );
+    /** Evaluates the expression (templated version) */
+    virtual returnValue evaluate( EvaluationBase *x );
 
-	
-	/** Evaluates the expression (templated version) */
-	virtual returnValue evaluate( EvaluationBase *x );
-
-	 
-    /** Substitutes var(index) with the expression sub.           \n
-     *  \return The substituted expression.                       \n
+    /** Substitutes key with the expression sub. \n
+     *  \return The substituted expression.      \n
      *
      */
-     virtual Operator* substitute( int   index           /**< subst. index    */,
-                                     const Operator *sub /**< the substitution*/);
+    virtual SharedOperator substitute( SharedOperatorMap &sub /**< the substitution */ );
 
+    /** Initializes the derivative operators */
+    virtual returnValue initDerivative();
 
-     /** Provides a deep copy of the expression. \n
-      *  \return a clone of the expression.      \n
-      */
-     virtual Operator* clone() const;
-
-     virtual returnValue initDerivative();
-
-
-//
-//  PROTECTED FUNCTIONS:
-//
-
-protected:
 };
 
 
 CLOSE_NAMESPACE_ACADO
-
-
 
 #endif

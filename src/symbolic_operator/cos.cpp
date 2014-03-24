@@ -36,63 +36,16 @@
 #include <acado/symbolic_operator/symbolic_operator.hpp>
 
 
-double dCos(double x){
-  return -sin(x);
-}
-
-
-double ddCos(double x){
-  return -cos(x);
-}
-
 BEGIN_NAMESPACE_ACADO
 
 
-Cos::Cos():UnaryOperator(){
-  cName = "cos";
+Cos::Cos():UnaryOperator(){}
 
-  fcn = &cos;
-  dfcn = &dCos;
-  ddfcn = &ddCos;
+Cos::Cos( const SharedOperator &_argument ):UnaryOperator(_argument,"cos"){}
 
-  operatorName = ON_COS;
+Cos::Cos( const Cos &arg ):UnaryOperator(arg){}
 
-}
-
-Cos::Cos( Operator *_argument ):UnaryOperator(_argument){
-  cName = "cos";
-
-  fcn = &cos;
-  dfcn = &dCos;
-  ddfcn = &ddCos;
-
-  operatorName = ON_COS;
-}
-
-
-Cos::Cos( const Cos &arg ):UnaryOperator(arg){
-  cName = "cos";
-
-  fcn = &cos;
-  dfcn = &dCos;
-  ddfcn = &ddCos;
-
-  operatorName = ON_COS;
-}
-
-
-Cos::~Cos(){
-
-}
-
-
-Cos& Cos::operator=( const Cos &arg ){
-
-  UnaryOperator::operator=(arg);
-
-  return *this;
-}
-
+Cos::~Cos(){}
 
 returnValue Cos::evaluate( EvaluationBase *x ){
  
@@ -101,23 +54,19 @@ returnValue Cos::evaluate( EvaluationBase *x ){
 }
 
 
-Operator* Cos::substitute( int index, const Operator *sub ){
+SharedOperator Cos::substitute( SharedOperatorMap &sub ){
 
-    return new Cos( argument->substitute( index , sub ) );
+    return SharedOperator( new Cos( argument->substitute(sub) ));
 
 }
 
-Operator* Cos::clone() const{
-
-    return new Cos(*this);
-}
 
 returnValue Cos::initDerivative() {
 
 	if( derivative != 0 && derivative2 != 0 ) return SUCCESSFUL_RETURN;
 
-	derivative = convert2TreeProjection(new Product( new DoubleConstant( -1.0 , NE_NEITHER_ONE_NOR_ZERO ), new Sin(argument->clone()) ));
-	derivative2 = convert2TreeProjection(new Product( new DoubleConstant( -1.0 , NE_NEITHER_ONE_NOR_ZERO ), new Cos(argument->clone()) ));
+	derivative = convert2TreeProjection( SharedOperator( new Product( SharedOperator( new DoubleConstant( -1.0 , NE_NEITHER_ONE_NOR_ZERO )), SharedOperator( new Sin(argument))) ));
+	derivative2 = convert2TreeProjection(SharedOperator( new Product( SharedOperator( new DoubleConstant( -1.0 , NE_NEITHER_ONE_NOR_ZERO )), SharedOperator( new Cos(argument) ))));
 
 	return argument->initDerivative();
 }
