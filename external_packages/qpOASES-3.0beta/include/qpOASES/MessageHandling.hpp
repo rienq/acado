@@ -57,7 +57,7 @@ enum returnValue
 {
 TERMINAL_LIST_ELEMENT = -1,						/**< Terminal list element, internal usage only! */
 /* miscellaneous */
-SUCCESSFUL_RETURN = 0,							/**< Successful return. */
+SUCCESSFUL_RETURN = 0,							/**< 0 Successful return. */
 RET_DIV_BY_ZERO,		   						/**< Division by zero. */
 RET_INDEX_OUT_OF_BOUNDS,						/**< Index out of bounds. */
 RET_INVALID_ARGUMENTS,							/**< At least one of the arguments is invalid. */
@@ -67,7 +67,7 @@ RET_INFO_UNDEFINED,								/**< Info number undefined. */
 RET_EWI_UNDEFINED,								/**< Error/warning/info number undefined. */
 RET_AVAILABLE_WITH_LINUX_ONLY,					/**< This function is available under Linux only. */
 RET_UNKNOWN_BUG,								/**< The error occured is not yet known. */
-RET_PRINTLEVEL_CHANGED,							/**< Print level changed. */
+RET_PRINTLEVEL_CHANGED,							/**< 10 Print level changed. */
 RET_NOT_YET_IMPLEMENTED,						/**< Requested function is not yet implemented in this version of qpOASES. */
 /* Indexlist */
 RET_INDEXLIST_MUST_BE_REORDERD,					/**< Index list has to be reordered. (12) */
@@ -79,7 +79,7 @@ RET_INDEXLIST_INTERSECT_FAILED,					/**< Intersection with another index set fai
 /* SubjectTo / Bounds / Constraints */
 RET_INDEX_ALREADY_OF_DESIRED_STATUS,			/**< Index is already of desired status. (18) */
 RET_ADDINDEX_FAILED,							/**< Adding index to index set failed. */
-RET_REMOVEINDEX_FAILED,							/**< Removing index from index set failed. */
+RET_REMOVEINDEX_FAILED,							/**< 20 Removing index from index set failed. */
 RET_SWAPINDEX_FAILED,							/**< Cannot swap between different indexsets. */
 RET_NOTHING_TO_DO,								/**< Nothing to do. */
 RET_SETUP_BOUND_FAILED,							/**< Setting up bound index failed. */
@@ -90,7 +90,7 @@ RET_SHIFTING_FAILED,							/**< Shifting of bounds/constraints failed. */
 RET_ROTATING_FAILED,							/**< Rotating of bounds/constraints failed. */
 /* QProblem */
 RET_QPOBJECT_NOT_SETUP,							/**< The QP object has not been setup correctly, use another constructor. (29) */
-RET_QP_ALREADY_INITIALISED,						/**< QProblem has already been initialised. */
+RET_QP_ALREADY_INITIALISED,						/**< 30 QProblem has already been initialised. */
 RET_NO_INIT_WITH_STANDARD_SOLVER,				/**< Initialisation via extern QP solver is not yet implemented. */
 RET_RESET_FAILED,								/**< Reset failed. */
 RET_INIT_FAILED,								/**< Initialisation failed. */
@@ -100,7 +100,7 @@ RET_INIT_FAILED_HOTSTART,						/**< Initialisation failed! QP could not be solve
 RET_INIT_FAILED_INFEASIBILITY,					/**< Initial QP could not be solved due to infeasibility! */
 RET_INIT_FAILED_UNBOUNDEDNESS,					/**< Initial QP could not be solved due to unboundedness! */
 RET_INIT_FAILED_REGULARISATION,					/**< Initialisation failed as Hessian matrix could not be regularised. */
-RET_INIT_SUCCESSFUL,							/**< Initialisation done. */
+RET_INIT_SUCCESSFUL,							/**< 40 Initialisation done. */
 RET_OBTAINING_WORKINGSET_FAILED,				/**< Failed to obtain working set for auxiliary QP. (40) */
 RET_SETUP_WORKINGSET_FAILED,					/**< Failed to setup working set for auxiliary QP. */
 RET_SETUP_AUXILIARYQP_FAILED,					/**< Failed to setup auxiliary QP for initialised homotopy. */
@@ -110,7 +110,7 @@ RET_QP_INFEASIBLE,								/**< QP is infeasible. */
 RET_QP_NOT_SOLVED,								/**< Problems occured while solving QP with standard solver. */
 RET_QP_SOLVED,									/**< QP successfully solved. */
 RET_UNABLE_TO_SOLVE_QP,							/**< Problems occured while solving QP. */
-RET_INITIALISATION_STARTED,						/**< Starting problem initialisation. */
+RET_INITIALISATION_STARTED,						/**< 50 Starting problem initialisation. */
 RET_HOTSTART_FAILED,							/**< Unable to perform homotopy due to internal error. (50) */
 RET_HOTSTART_FAILED_TO_INIT,					/**< Unable to initialise problem. */
 RET_HOTSTART_FAILED_AS_QP_NOT_INITIALISED,		/**< Unable to perform homotopy as previous QP is not solved. */
@@ -120,7 +120,7 @@ RET_STEPDIRECTION_DETERMINATION_FAILED,			/**< Determination of step direction f
 RET_STEPLENGTH_DETERMINATION_FAILED,			/**< Determination of step direction failed. */
 RET_OPTIMAL_SOLUTION_FOUND,						/**< Optimal solution of neighbouring QP found. */
 RET_HOMOTOPY_STEP_FAILED,						/**< Unable to perform homotopy step. */
-RET_HOTSTART_STOPPED_INFEASIBILITY,				/**< Premature homotopy termination because QP is infeasible. */
+RET_HOTSTART_STOPPED_INFEASIBILITY,				/**< 60 Premature homotopy termination because QP is infeasible. */
 RET_HOTSTART_STOPPED_UNBOUNDEDNESS,				/**< Premature homotopy termination because QP is unbounded. (60) */
 RET_WORKINGSET_UPDATE_FAILED,					/**< Unable to update working sets according to initial guesses. */
 RET_MAX_NWSR_REACHED,							/**< Maximum number of working set recalculations performed. */

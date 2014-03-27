@@ -91,7 +91,7 @@ public:
     
     
     /** Evaluates the function based on a template map.*/
-    template <typename T> std::vector<T> evaluate( std::map<Operator*,T>  &x );
+    template <typename T> std::vector<T> evaluate( TemplateMap<T>  &x );
 
 
      /** Checks whether the function is a constant. */
@@ -160,7 +160,7 @@ protected:
      std::string  globalExportVariableName;   /** Name of the variable that holds intermediate expressions. */
 };
 
-template <typename T> std::vector<T> Function::evaluate( std::map<Operator*,T> &x ){
+template <typename T> std::vector<T> Function::evaluate( TemplateMap<T> &x ){
       
     std::vector<T> result(size());
     EvaluationTemplate<T> y(&x);
@@ -181,7 +181,7 @@ template <typename T> std::vector<T> Function::evaluate( const std::vector<T> &x
   
     ASSERT( (int) in.size()== x.size());
     
-    std::map<Operator*,T> xMap;
+    TemplateMap<T> xMap;
     
     for( uint i=0; i<x.size(); ++i ){
         xMap[in[i].get()] = x[i];

@@ -36,6 +36,7 @@
 
 #include <acado/utils/acado_namespace_macros.hpp>
 #include <map>
+#include <unordered_map>
 #include <vector>
 
 #ifdef _WIN32
@@ -92,6 +93,10 @@ typedef std::map<Operator*,bool> DependencyMap;
 
 /** Define a name map.*/
 typedef std::map<const Operator*,std::string> StringMap;
+
+/** Define a template map.*/
+template<typename T>
+using TemplateMap = std::unordered_map<Operator*,T>;
 
 
 /** Defines the Neutral Elements ZERO and ONE as well as the default

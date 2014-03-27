@@ -231,8 +231,6 @@ SharedOperator Operator::checkForZero( const SharedOperator &x ){
 
 returnValue Operator::initDerivative(){ return SUCCESSFUL_RETURN; }
 
-
-
 CLOSE_NAMESPACE_ACADO
 
 

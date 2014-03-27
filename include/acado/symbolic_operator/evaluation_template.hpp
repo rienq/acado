@@ -36,6 +36,20 @@
 
 #include <acado/symbolic_operator/symbolic_operator_fwd.hpp>
 
+#include <functional>
+
+
+namespace std {
+  template <>
+  struct std::hash<ACADO::Operator*>
+  {
+    std::size_t operator()(const ACADO::Operator* k) const
+    {
+
+      return std::hash<size_t>()((size_t)k);
+    }
+  };
+}
 
 BEGIN_NAMESPACE_ACADO
 
@@ -54,7 +68,7 @@ public:
 
 	/** Default constructor. */
 	EvaluationTemplate();
-	EvaluationTemplate( std::map<Operator*,T> *_map );
+	EvaluationTemplate( TemplateMap<T> *_map );
 	
 	virtual ~EvaluationTemplate();
 
@@ -76,7 +90,7 @@ public:
 	virtual void Sin        ( Operator &arg );
 	virtual void Tan        ( Operator &arg );
 	
-	std::map<Operator*,T> *map;
+	TemplateMap<T> *map;
 	T                      res;
 };
 
@@ -91,7 +105,7 @@ BEGIN_NAMESPACE_ACADO
 
 
 template <typename T> EvaluationTemplate<T>::EvaluationTemplate():EvaluationBase(){ map = 0; }
-template <typename T> EvaluationTemplate<T>::EvaluationTemplate( std::map<Operator*,T> *_map ):EvaluationBase()
+template <typename T> EvaluationTemplate<T>::EvaluationTemplate( TemplateMap<T> *_map ):EvaluationBase()
 { map = _map; }
 template <typename T> EvaluationTemplate<T>::~EvaluationTemplate(){}
 
@@ -144,7 +158,8 @@ template <typename T> void EvaluationTemplate<T>::powerInt( Operator &arg1, int 
 
 template <typename T> void EvaluationTemplate<T>::project( Operator *idx ){
 
-	res = map->operator[](idx);
+	res = 1.0;
+	//res = map->operator[](idx);
 }
 
 

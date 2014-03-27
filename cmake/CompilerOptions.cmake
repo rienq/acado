@@ -114,7 +114,7 @@ IF( CMAKE_COMPILER_IS_GNUCXX OR CMAKE_COMPILER_IS_GNUCC OR "${CMAKE_CXX_COMPILER
 		SET( CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIC" )
 	ENDIF( NOT CYGWIN )
 	
-	SET( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -pedantic -Wfloat-equal -Wshadow -DLINUX" )
+	SET( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -pedantic -Wfloat-equal -Wshadow -DLINUX -std=c++0x" )
 	SET( CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -pedantic -Wfloat-equal -Wshadow -DLINUX" )
 	
 	IF( ACADO_DEVELOPER )
