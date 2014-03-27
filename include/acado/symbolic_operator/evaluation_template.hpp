@@ -41,12 +41,12 @@
 
 namespace std {
   template <>
-  struct std::hash<ACADO::Operator*>
+  struct hash<ACADO::Operator*>
   {
-    std::size_t operator()(const ACADO::Operator* k) const
+    size_t operator()(const ACADO::Operator* k) const
     {
 
-      return std::hash<size_t>()((size_t)k);
+      return hash<size_t>()((size_t)k);
     }
   };
 }
@@ -158,8 +158,8 @@ template <typename T> void EvaluationTemplate<T>::powerInt( Operator &arg1, int 
 
 template <typename T> void EvaluationTemplate<T>::project( Operator *idx ){
 
-	res = 1.0;
-	//res = map->operator[](idx);
+	//res = 1.0;
+	res = map->operator[](idx);
 }
 
 
