@@ -44,35 +44,36 @@ int main( ){
 
     USING_NAMESPACE_ACADO
 
-    // DEFINE VARIABLES:
-    // -----------------------
-       DifferentialState x, y;
-       IntermediateState z   ;
-       Function f;
+       double t = -acadoGetTime();
+    
+       Expression x,y,z;
 
        z = 1.0;
 
-       int run1;
-
-       for( run1 = 0; run1 < 5; run1++ )
+       for( int i=0; i<5000; ++i )
             z += sin( z + x*y );
 
-       f << z;
+       Function f((x,y),z);
 
-
-    // TEST THE FUNCTION f:
-    // --------------------
-       EvaluationPoint zz(f);
-
-       DVector xx(2);
-       xx.setZero();
-       xx(0) = 2.0;
-       xx(1) = 0.0;
-
-       zz.setX(xx);
-
-       DVector result = f.evaluate( zz );
-       result.print("result");
+       t += acadoGetTime();
+       
+       printf("time for loading = %.6e \n", t );
+       
+       t = -acadoGetTime();
+       
+       std::vector<double> xx(2);
+       xx[0] = 2.0;
+       xx[1] = 0.0;
+       
+       std::vector<double> result = f.evaluate(xx);
+       
+       t += acadoGetTime();
+       
+       printf("time for evaluation = %.6e \n", t );
+       
+       std::cout << "f = " << result[0] << std::endl;
+       
+       
 
     return 0;
 }
