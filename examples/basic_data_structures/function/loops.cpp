@@ -44,6 +44,14 @@ int main( ){
 
     USING_NAMESPACE_ACADO
 
+		std::vector<double> result;
+		double t1, t2;
+		const int RUNITS = 50;
+		
+		t1 = 0; t2 = 0;
+		
+       for( int runIt=0; runIt<RUNITS; ++runIt ) {
+       
        double t = -acadoGetTime();
     
        Expression x,y,z;
@@ -55,9 +63,8 @@ int main( ){
 
        Function f((x,y),z);
 
-       t += acadoGetTime();
+       t += acadoGetTime(); t1 += t;
        
-       printf("time for loading = %.6e \n", t );
        
        t = -acadoGetTime();
        
@@ -65,14 +72,13 @@ int main( ){
        xx[0] = 2.0;
        xx[1] = 0.0;
        
-       std::vector<double> result = f.evaluate(xx);
+       result = f.evaluate(xx);
        
-       t += acadoGetTime();
-       
-       printf("time for evaluation = %.6e \n", t );
-       
+       t += acadoGetTime(); t2 += t;
+   }
+       printf("time for loading = %2.1f ms \n", 1e3*t1/RUNITS );
+       printf("time for evaluation = %2.1f ms \n", 1e3*t2/RUNITS );
        std::cout << "f = " << result[0] << std::endl;
-       
        
 
     return 0;
