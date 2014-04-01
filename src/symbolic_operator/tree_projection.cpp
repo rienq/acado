@@ -182,8 +182,10 @@ returnValue TreeProjection::getArgumentList( DependencyMap &exists,
                                              SharedOperatorVector &list,
                                              std::vector<uint> &indices ){
 
-    argument->getArgumentList(exists,list,indices);
-    argument->addTo(exists, list, argument);
+	if( !isIn(exists) ) {
+		argument->getArgumentList(exists,list,indices);
+		argument->addTo(exists, list, argument);
+	}
 
     return SUCCESSFUL_RETURN;
 }
