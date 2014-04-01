@@ -47,10 +47,10 @@ Acos::Acos( const Acos &arg ):UnaryOperator(arg){ }
 
 Acos::~Acos(){ }
 
-returnValue Acos::evaluate( EvaluationBase *x ){
- 
-    x->Acos(*argument);
-    return SUCCESSFUL_RETURN;
+uint Acos::evaluate( EvaluationBase *x, std::vector<uint> &indices, uint base ) {
+
+    x->Acos(indices[base], indices[base+1]);
+    return base+2;
 }
 
     

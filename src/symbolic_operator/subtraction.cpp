@@ -50,11 +50,10 @@ Subtraction::Subtraction( const Subtraction &arg )
 
 Subtraction::~Subtraction(){}
 
+uint Subtraction::evaluate( EvaluationBase *x, std::vector<uint> &indices, uint base ) {
 
-returnValue Subtraction::evaluate( EvaluationBase *x ){
-
-    x->subtraction(*a1,*a2);
-    return SUCCESSFUL_RETURN;
+    x->subtraction(indices[base], indices[base+1], indices[base+2]);
+    return base+3;
 }
 
 SharedOperator Subtraction::substitute( SharedOperatorMap &sub ){

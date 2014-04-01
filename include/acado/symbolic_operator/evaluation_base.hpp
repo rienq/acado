@@ -58,23 +58,23 @@ public:
 
 	virtual ~EvaluationBase(){};
 
-	virtual void addition   ( Operator &arg1, Operator &arg2 ) = 0;
-	virtual void subtraction( Operator &arg1, Operator &arg2 ) = 0;
-	virtual void product    ( Operator &arg1, Operator &arg2 ) = 0;
-	virtual void quotient   ( Operator &arg1, Operator &arg2 ) = 0;
-	virtual void power      ( Operator &arg1, Operator &arg2 ) = 0;
-	virtual void powerInt   ( Operator &arg1, int      &arg2 ) = 0;
+	virtual void addition   ( uint arg1, uint arg2, uint res ) = 0;
+	virtual void subtraction( uint arg1, uint arg2, uint res ) = 0;
+	virtual void product    ( uint arg1, uint arg2, uint res ) = 0;
+	virtual void quotient   ( uint arg1, uint arg2, uint res ) = 0;
+	virtual void power      ( uint arg1, uint arg2, uint res ) = 0;
+	virtual void powerInt   ( uint arg1, int arg2, uint res ) = 0;
 
-	virtual void project    ( Operator *idx ) = 0;
-	virtual void set        ( double   &arg ) = 0;
-	virtual void Acos       ( Operator &arg ) = 0;
-	virtual void Asin       ( Operator &arg ) = 0;
-	virtual void Atan       ( Operator &arg ) = 0;
-	virtual void Cos        ( Operator &arg ) = 0;
-	virtual void Exp        ( Operator &arg ) = 0;
-	virtual void Log        ( Operator &arg ) = 0;
-	virtual void Sin        ( Operator &arg ) = 0;
-	virtual void Tan        ( Operator &arg ) = 0;
+	virtual void Acos       ( uint arg, uint res ) = 0;
+	virtual void Asin       ( uint arg, uint res ) = 0;
+	virtual void Atan       ( uint arg, uint res ) = 0;
+	virtual void Cos        ( uint arg, uint res ) = 0;
+	virtual void Exp        ( uint arg, uint res ) = 0;
+	virtual void Log        ( uint arg, uint res ) = 0;
+	virtual void Sin        ( uint arg, uint res ) = 0;
+	virtual void Tan        ( uint arg, uint res ) = 0;
+
+	virtual void set        ( double val, uint res ) = 0;
 
 };
 

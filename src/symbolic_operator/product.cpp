@@ -51,10 +51,10 @@ Product::Product( const Product &arg ):BinaryOperator( arg ){}
 
 Product::~Product(){}
 
-returnValue Product::evaluate( EvaluationBase *x ){
- 
-    x->product(*a1,*a2);
-    return SUCCESSFUL_RETURN;
+uint Product::evaluate( EvaluationBase *x, std::vector<uint> &indices, uint base ) {
+
+    x->product(indices[base], indices[base+1], indices[base+2]);
+    return base+3;
 }
 
 SharedOperator Product::substitute( SharedOperatorMap &sub ){

@@ -64,10 +64,6 @@ public:
     virtual ~SmoothOperator();
 
 
-    /** Evaluates the expression (templated version) */
-    virtual returnValue evaluate( EvaluationBase *x ) = 0;
-
-
     /** Automatic Differentiation in forward mode on the symbolic \n
      *  level. This function generates an expression for a        \n
      *  forward derivative                                        \n
@@ -133,7 +129,8 @@ public:
 
 
      virtual returnValue getArgumentList( DependencyMap &exists,
-                                          SharedOperatorVector &list ) = 0;
+                                          SharedOperatorVector &list,
+                                          std::vector<uint> &indices  ) = 0;
 
 
      /** Return the value of the constant */

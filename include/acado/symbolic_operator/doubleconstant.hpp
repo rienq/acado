@@ -70,7 +70,7 @@ public:
     ~DoubleConstant();
 
     /** Evaluates the expression (templated version) */
-    virtual returnValue evaluate( EvaluationBase *x );
+    virtual uint evaluate( EvaluationBase *x, std::vector<uint> &indices, uint base );
 
     
     
@@ -132,7 +132,8 @@ public:
 
 
      virtual returnValue getArgumentList( DependencyMap &exists,
-                                          SharedOperatorVector &list  );
+                                          SharedOperatorVector &list,
+                                          std::vector<uint> &indices );
 
      /** Return the value of the constant */
      virtual double getValue() const;

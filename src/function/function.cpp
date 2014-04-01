@@ -66,13 +66,14 @@ void Function::copy( const Function &arg ){
   sub = arg.sub;
   dep = arg.dep;
   in  = arg.in ;
+  indices = arg.indices;
   globalExportVariableName = arg.globalExportVariableName;  
 }
 
 Function& Function::operator<<( const Expression &arg ){
   
     for( int i=0; i<arg.size(); ++i ){
-         arg(i).element->getArgumentList(dep,sub);
+         arg(i).element->getArgumentList(dep,sub,indices);
          f.push_back(arg(i).element);
     }
     return *this;
@@ -103,6 +104,13 @@ returnValue Function::setInput( const Expression &input ){
   
    in.resize(input.size());
    for( int i=0; i<input.size();++i) in[i] = (input(i)).element;
+
+   sub = SharedOperatorVector();
+   dep = DependencyMap();
+   for( int i=0; i<input.size();++i) {
+	   (input(i)).element->addTo(dep, sub, (input(i)).element);
+   }
+
    return SUCCESSFUL_RETURN; 
 }
 

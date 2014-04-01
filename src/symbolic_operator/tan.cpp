@@ -46,10 +46,10 @@ Tan::Tan( const Tan &arg ):UnaryOperator(arg){}
 
 Tan::~Tan(){}
 
-returnValue Tan::evaluate( EvaluationBase *x ){
+uint Tan::evaluate( EvaluationBase *x, std::vector<uint> &indices, uint base ) {
 
-    x->Tan(*argument);
-    return SUCCESSFUL_RETURN;
+    x->Tan(indices[base], indices[base+1]);
+    return base+2;
 }
 
 SharedOperator Tan::substitute( SharedOperatorMap &sub ){

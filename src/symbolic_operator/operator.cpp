@@ -222,6 +222,24 @@ SharedOperator Operator::convert2TreeProjection( const SharedOperator &a ) const
      return SharedOperator( new TreeProjection(b) );
 }
 
+uint Operator::getIndex( const DependencyMap &exists ) {
+	return exists.at(this);
+}
+
+
+bool Operator::isIn( const DependencyMap &exists ) {
+	return (exists.count(this) != 0);
+}
+
+void Operator::addTo( DependencyMap &exists, SharedOperatorVector &list, const SharedOperator &element ){
+	ASSERT( element.get() == this );
+
+	if( !isIn(exists) ) {
+		list.push_back(element);
+		exists[this] = list.size()-1;
+	}
+}
+
 
 SharedOperator Operator::checkForZero( const SharedOperator &x ){
 

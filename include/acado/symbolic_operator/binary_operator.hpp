@@ -69,9 +69,6 @@ public:
     /** Default destructor. */
      virtual ~BinaryOperator();
 
-    /** Evaluates the expression (templated version) */
-     virtual returnValue evaluate( EvaluationBase *x ) = 0;
-
 
     /** Automatic Differentiation in forward mode on the symbolic \n
      *  level. This function generates an expression for a        \n
@@ -130,7 +127,8 @@ public:
 
 
      virtual returnValue getArgumentList( DependencyMap &exists,
-                                          SharedOperatorVector &list  );
+                                          SharedOperatorVector &list,
+                                          std::vector<uint> &indices );
 
 
 

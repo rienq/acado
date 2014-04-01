@@ -47,10 +47,10 @@ Cos::Cos( const Cos &arg ):UnaryOperator(arg){}
 
 Cos::~Cos(){}
 
-returnValue Cos::evaluate( EvaluationBase *x ){
- 
-    x->Cos(*argument);
-    return SUCCESSFUL_RETURN;
+uint Cos::evaluate( EvaluationBase *x, std::vector<uint> &indices, uint base ) {
+
+    x->Cos(indices[base], indices[base+1]);
+    return base+2;
 }
 
 

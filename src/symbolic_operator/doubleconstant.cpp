@@ -63,10 +63,10 @@ DoubleConstant::DoubleConstant( const DoubleConstant &arg ){
 DoubleConstant::~DoubleConstant(){}
 
 
-returnValue DoubleConstant::evaluate( EvaluationBase *x ){
+uint DoubleConstant::evaluate( EvaluationBase *x, std::vector<uint> &indices, uint base ){
 
-    x->set(value);
-    return SUCCESSFUL_RETURN;
+    x->set(value, indices[base]);
+    return base+1;
 }
 
 
@@ -110,7 +110,13 @@ std::ostream& DoubleConstant::print( std::ostream &stream, StringMap &name ) con
 }
 
 returnValue DoubleConstant::getArgumentList( DependencyMap &exists,
-                                             SharedOperatorVector &list  ){ return SUCCESSFUL_RETURN; }
+                                             SharedOperatorVector &list, std::vector<uint> &indices  ){
+	if( !isIn(exists) ) {
+		indices.push_back(list.size()); // It should be the next operator to be added to this list
+	}
+
+	return SUCCESSFUL_RETURN;
+}
 
 BooleanType DoubleConstant::isSymbolic() const{ return BT_TRUE; }
 

@@ -68,7 +68,7 @@ public:
     ~Addition();
 
     /** Evaluates the expression (templated version) */
-    virtual returnValue evaluate( EvaluationBase *x );
+    virtual uint evaluate( EvaluationBase *x, std::vector<uint> &indices, uint base );
 
     /** Substitutes key with the expression sub. \n
      *  \return The substituted expression.      \n

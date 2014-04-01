@@ -48,10 +48,10 @@ Exp::Exp( const Exp &arg ):UnaryOperator(arg){}
 
 Exp::~Exp(){}
 
-returnValue Exp::evaluate( EvaluationBase *x ){
- 
-    x->Exp(*argument);
-    return SUCCESSFUL_RETURN;
+uint Exp::evaluate( EvaluationBase *x, std::vector<uint> &indices, uint base ) {
+
+    x->Exp(indices[base], indices[base+1]);
+    return base+2;
 }
 
 

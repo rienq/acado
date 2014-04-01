@@ -47,11 +47,10 @@ Atan::Atan( const Atan &arg ):UnaryOperator(arg){}
 
 Atan::~Atan(){}
 
+uint Atan::evaluate( EvaluationBase *x, std::vector<uint> &indices, uint base ) {
 
-returnValue Atan::evaluate( EvaluationBase *x ){
- 
-    x->Atan(*argument);
-    return SUCCESSFUL_RETURN;
+    x->Atan(indices[base], indices[base+1]);
+    return base+2;
 }
 
 

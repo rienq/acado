@@ -89,7 +89,7 @@ typedef std::map<Operator*,SharedOperatorMap> SharedOperatorMap2;
 typedef std::map<Operator*,SharedOperatorMap2> SharedOperatorMap3;
 
 /** Define a dependency map.*/
-typedef std::map<Operator*,bool> DependencyMap;
+typedef std::map<Operator*,uint> DependencyMap;
 
 /** Define a name map.*/
 typedef std::map<const Operator*,std::string> StringMap;

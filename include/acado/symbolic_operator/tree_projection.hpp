@@ -75,10 +75,6 @@ public:
     virtual Operator& operator-=( const ScalarExpression  & arg );
     virtual Operator& operator*=( const ScalarExpression  & arg );
     virtual Operator& operator/=( const ScalarExpression  & arg );
-
-
-    /** Evaluates the expression (templated version) */
-    virtual returnValue evaluate( EvaluationBase *x );
     
 
     /** Automatic Differentiation in forward mode on the symbolic \n
@@ -115,7 +111,13 @@ public:
      
     
      virtual returnValue getArgumentList( DependencyMap &exists,
-                                          SharedOperatorVector &list  );
+                                          SharedOperatorVector &list,
+                                          std::vector<uint> &indices  );
+
+
+     uint getIndex( const DependencyMap &exists );
+     bool isIn( const DependencyMap &exists );
+     void addTo( DependencyMap &exists, SharedOperatorVector &list, const SharedOperator &element );
 
 
     /** Checks whether the expression is zero or one              \n

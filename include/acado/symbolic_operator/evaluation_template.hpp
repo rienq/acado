@@ -68,30 +68,31 @@ public:
 
 	/** Default constructor. */
 	EvaluationTemplate();
-	EvaluationTemplate( TemplateMap<T> *_map );
+	EvaluationTemplate( std::vector<T> *res );
 	
 	virtual ~EvaluationTemplate();
 
-	virtual void addition   ( Operator &arg1, Operator &arg2 );
-	virtual void subtraction( Operator &arg1, Operator &arg2 );
-	virtual void product    ( Operator &arg1, Operator &arg2 );
-	virtual void quotient   ( Operator &arg1, Operator &arg2 );
-	virtual void power      ( Operator &arg1, Operator &arg2 );
-	virtual void powerInt   ( Operator &arg1, int      &arg2 );
+	virtual void addition   ( uint arg1, uint arg2, uint res );
+	virtual void subtraction( uint arg1, uint arg2, uint res );
+	virtual void product    ( uint arg1, uint arg2, uint res );
+	virtual void quotient   ( uint arg1, uint arg2, uint res );
+	virtual void power      ( uint arg1, uint arg2, uint res );
+	virtual void powerInt   ( uint arg1, int arg2, uint res );
 
-	virtual void project    ( Operator *idx );
-	virtual void set        ( double   &arg );
-	virtual void Acos       ( Operator &arg );
-	virtual void Asin       ( Operator &arg );
-	virtual void Atan       ( Operator &arg );
-	virtual void Cos        ( Operator &arg );
-	virtual void Exp        ( Operator &arg );
-	virtual void Log        ( Operator &arg );
-	virtual void Sin        ( Operator &arg );
-	virtual void Tan        ( Operator &arg );
-	
-	TemplateMap<T> *map;
-	T                      res;
+	virtual void Acos       ( uint arg, uint res );
+	virtual void Asin       ( uint arg, uint res );
+	virtual void Atan       ( uint arg, uint res );
+	virtual void Cos        ( uint arg, uint res );
+	virtual void Exp        ( uint arg, uint res );
+	virtual void Log        ( uint arg, uint res );
+	virtual void Sin        ( uint arg, uint res );
+	virtual void Tan        ( uint arg, uint res );
+
+	virtual void set        ( double val, uint res );
+
+	virtual T get( uint index );
+
+	std::vector<T> *result;
 };
 
 
@@ -104,117 +105,91 @@ BEGIN_NAMESPACE_ACADO
 
 
 
-template <typename T> EvaluationTemplate<T>::EvaluationTemplate():EvaluationBase(){ map = 0; }
-template <typename T> EvaluationTemplate<T>::EvaluationTemplate( TemplateMap<T> *_map ):EvaluationBase()
-{ map = _map; }
+template <typename T> EvaluationTemplate<T>::EvaluationTemplate():EvaluationBase(){ result = 0; }
+template <typename T> EvaluationTemplate<T>::EvaluationTemplate( std::vector<T> *res ):EvaluationBase()
+{ result = res; }
 template <typename T> EvaluationTemplate<T>::~EvaluationTemplate(){}
 
-template <typename T> void EvaluationTemplate<T>::addition( Operator &arg1, Operator &arg2 ){
-	
-	arg1.evaluate( this );
-	T tmp = res;
-	arg2.evaluate( this );
-	res += tmp; 
+template <typename T> void EvaluationTemplate<T>::addition( uint arg1, uint arg2, uint res ){
+
+	result->operator[](res) = result->operator[](arg1)+result->operator[](arg2);
 }
 
-template <typename T> void EvaluationTemplate<T>::subtraction( Operator &arg1, Operator &arg2 ){
- 
-	arg2.evaluate( this );
-	T tmp = res;
-	arg1.evaluate( this );
-	res -= tmp;
+template <typename T> void EvaluationTemplate<T>::subtraction( uint arg1, uint arg2, uint res ){
+
+	result->operator[](res) = result->operator[](arg1)-result->operator[](arg2);
 }
 
-template <typename T> void EvaluationTemplate<T>::product( Operator &arg1, Operator &arg2 ){
- 
-	arg1.evaluate( this );
-	T tmp = res;
-	arg2.evaluate( this );
-	res *= tmp;
+template <typename T> void EvaluationTemplate<T>::product( uint arg1, uint arg2, uint res ){
+
+	result->operator[](res) = result->operator[](arg1)*result->operator[](arg2);
 }
 
-template <typename T> void EvaluationTemplate<T>::quotient( Operator &arg1, Operator &arg2 ){
+template <typename T> void EvaluationTemplate<T>::quotient( uint arg1, uint arg2, uint res ){
 
-	arg2.evaluate( this );
-	T tmp = res;
-	arg1.evaluate( this );
-	res /= tmp;
+	result->operator[](res) = result->operator[](arg1)/result->operator[](arg2);
 }
 
-template <typename T> void EvaluationTemplate<T>::power( Operator &arg1, Operator &arg2 ){
+template <typename T> void EvaluationTemplate<T>::power( uint arg1, uint arg2, uint res ){
 
-	arg1.evaluate( this );
-	T tmp = res;
-	arg2.evaluate( this );
-	res = pow(tmp,res);
+	result->operator[](res) = pow(result->operator[](arg1),result->operator[](arg2));
 }
 
-template <typename T> void EvaluationTemplate<T>::powerInt( Operator &arg1, int &arg2 ){
- 
-	arg1.evaluate( this );
-	res = pow( res, arg2 );
+template <typename T> void EvaluationTemplate<T>::powerInt( uint arg1, int arg2, uint res ){
+
+	result->operator[](res) = pow(result->operator[](arg1),arg2);
 }
 
 
-template <typename T> void EvaluationTemplate<T>::project( Operator *idx ){
+template <typename T> void EvaluationTemplate<T>::Acos( uint arg, uint res ){
 
-	//res = 1.0;
-	res = map->operator[](idx);
+	result->operator[](res) = acos(result->operator[](arg));
+}
+
+template <typename T> void EvaluationTemplate<T>::Asin( uint arg, uint res ){
+
+	result->operator[](res) = asin(result->operator[](arg));
+}
+
+template <typename T> void EvaluationTemplate<T>::Atan( uint arg, uint res ){
+
+	result->operator[](res) = atan(result->operator[](arg));
+}
+
+template <typename T> void EvaluationTemplate<T>::Cos( uint arg, uint res ){
+
+	result->operator[](res) = cos(result->operator[](arg));
+}
+
+template <typename T> void EvaluationTemplate<T>::Exp( uint arg, uint res ){
+
+	result->operator[](res) = exp(result->operator[](arg));
+}
+
+template <typename T> void EvaluationTemplate<T>::Log( uint arg, uint res ){
+
+	result->operator[](res) = log(result->operator[](arg));
+}
+
+template <typename T> void EvaluationTemplate<T>::Sin( uint arg, uint res ){
+
+	result->operator[](res) = sin(result->operator[](arg));
+}
+
+template <typename T> void EvaluationTemplate<T>::Tan( uint arg, uint res ){
+
+	result->operator[](res) = tan(result->operator[](arg));
+}
+
+template <typename T> void EvaluationTemplate<T>::set( double val, uint res ){
+
+	result->operator[](res) = val;
 }
 
 
-template <typename T> void EvaluationTemplate<T>::set( double &arg ){
+template <typename T> T  EvaluationTemplate<T>::get( uint index ){
 
-	res = arg;
-}
-
-
-template <typename T> void EvaluationTemplate<T>::Acos( Operator &arg ){
-
-	arg.evaluate( this );
-	res = acos( res );
-}
-
-template <typename T> void EvaluationTemplate<T>::Asin( Operator &arg ){
-
-	arg.evaluate( this );
-	res = asin( res );
-}
-
-template <typename T> void EvaluationTemplate<T>::Atan( Operator &arg ){
-
-	arg.evaluate( this );
-	res = atan( res );
-}
-
-template <typename T> void EvaluationTemplate<T>::Cos( Operator &arg ){
-
-	arg.evaluate( this );
-	res = cos( res );
-}
-
-template <typename T> void EvaluationTemplate<T>::Exp( Operator &arg ){
-
-	arg.evaluate( this );
-	res = exp( res );
-}
-
-template <typename T> void EvaluationTemplate<T>::Log( Operator &arg ){
-
-	arg.evaluate( this );
-	res = log( res );
-}
-
-template <typename T> void EvaluationTemplate<T>::Sin( Operator &arg ){
-
-	arg.evaluate( this );
-	res = sin( res );
-}
-
-template <typename T> void EvaluationTemplate<T>::Tan( Operator &arg ){
-
-	arg.evaluate( this );
-	res = tan( res );
+	return result->operator[](index);
 }
 
 CLOSE_NAMESPACE_ACADO

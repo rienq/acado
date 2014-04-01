@@ -76,7 +76,7 @@ public:
 
 
     /** Evaluates the operator */
-    virtual returnValue evaluate( EvaluationBase *x ) = 0;
+    virtual uint evaluate( EvaluationBase *x, std::vector<uint> &indices, uint base ) = 0;
 
 
     /** Automatic Differentiation in forward mode on the symbolic \n
@@ -144,7 +144,8 @@ public:
 
 
      virtual returnValue getArgumentList( DependencyMap &exists,
-                                          SharedOperatorVector &list  ) = 0;
+                                          SharedOperatorVector &list,
+                                          std::vector<uint> &indices  ) = 0;
 
 
 
@@ -184,6 +185,10 @@ public:
     SharedOperator checkForZero( const SharedOperator &x );
 
     SharedOperator convert2TreeProjection( const SharedOperator &a ) const;
+
+    virtual uint getIndex( const DependencyMap &exists );
+    virtual bool isIn( const DependencyMap &exists );
+    virtual void addTo( DependencyMap &exists, SharedOperatorVector &list, const SharedOperator &element );
 };
 
 

@@ -47,10 +47,10 @@ Power_Int::Power_Int( const Power_Int &arg ):UnaryOperator(arg){ exponent = arg.
 
 Power_Int::~Power_Int(){ }
 
-returnValue Power_Int::evaluate( EvaluationBase *x ){
- 
-    x->powerInt(*argument,exponent);
-    return SUCCESSFUL_RETURN;
+uint Power_Int::evaluate( EvaluationBase *x, std::vector<uint> &indices, uint base ) {
+
+    x->powerInt(indices[base], exponent, indices[base+1]);
+    return base+2;
 }
 
     

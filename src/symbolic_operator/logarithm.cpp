@@ -47,10 +47,10 @@ Logarithm::Logarithm( const Logarithm &arg ):UnaryOperator(arg){}
 
 Logarithm::~Logarithm(){}
 
-returnValue Logarithm::evaluate( EvaluationBase *x ){
- 
-    x->Log(*argument);
-    return SUCCESSFUL_RETURN;
+uint Logarithm::evaluate( EvaluationBase *x, std::vector<uint> &indices, uint base ) {
+
+    x->Log(indices[base], indices[base+1]);
+    return base+2;
 }
 
 SharedOperator Logarithm::substitute( SharedOperatorMap &sub ){

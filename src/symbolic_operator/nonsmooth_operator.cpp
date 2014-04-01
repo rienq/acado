@@ -42,7 +42,11 @@ NonsmoothOperator::NonsmoothOperator():Operator(){}
 
 NonsmoothOperator::~NonsmoothOperator(){}
 
-returnValue NonsmoothOperator::evaluate( EvaluationBase *x ){  return SUCCESSFUL_RETURN; }
+uint NonsmoothOperator::evaluate( EvaluationBase *x, std::vector<uint> &indices, uint base ) {
+
+	ACADOERROR(RET_UNKNOWN_BUG);
+    return base;
+}
 
 
 SharedOperator NonsmoothOperator::AD_forward( SharedOperatorMap &seed ){
@@ -87,8 +91,9 @@ BooleanType NonsmoothOperator::isSmooth( ) const{ return BT_FALSE; }
 
 std::ostream& NonsmoothOperator::print( std::ostream &stream, StringMap &name ) const{ return stream; }
 
-returnValue NonsmoothOperator::getArgumentList( DependencyMap &exists,
-                                                SharedOperatorVector &list  ){ return SUCCESSFUL_RETURN; }
+returnValue NonsmoothOperator::getArgumentList( DependencyMap &exists, SharedOperatorVector &list, std::vector<uint> &indices  ){
+	return SUCCESSFUL_RETURN;
+}
 
 
 BooleanType NonsmoothOperator::isSymbolic() const{  return BT_TRUE; }

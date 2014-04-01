@@ -53,11 +53,10 @@ Addition::Addition( const Addition &arg )
 
 Addition::~Addition(){}
 
+uint Addition::evaluate( EvaluationBase *x, std::vector<uint> &indices, uint base ) {
 
-returnValue Addition::evaluate( EvaluationBase *x ){
-
-    x->addition(*a1,*a2);
-    return SUCCESSFUL_RETURN;
+    x->addition(indices[base], indices[base+1], indices[base+2]);
+    return base+3;
 }
 
 SharedOperator Addition::substitute( SharedOperatorMap &sub ){

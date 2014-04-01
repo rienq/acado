@@ -45,11 +45,10 @@ Projection::~Projection(){ }
 
 Projection::Projection( const Projection& arg ){ }
 
+uint Projection::evaluate( EvaluationBase *x, std::vector<uint> &indices, uint base ) {
 
-returnValue Projection::evaluate( EvaluationBase *x ){
-
-    x->project(this);
-    return SUCCESSFUL_RETURN;
+	ACADOERROR(RET_UNKNOWN_BUG);
+    return base;
 }
 
 SharedOperator Projection::AD_forward( SharedOperatorMap &seed ){
@@ -95,11 +94,15 @@ std::ostream& Projection::print( std::ostream &stream, StringMap &name ) const{
     return stream << name[this];
 }
 
+
 returnValue Projection::getArgumentList( DependencyMap &exists,
-                                         SharedOperatorVector &list  ){ return SUCCESSFUL_RETURN; }
+                                     SharedOperatorVector &list,
+                                     std::vector<uint> &indices  ){
+
+	return SUCCESSFUL_RETURN;
+}
 
 BooleanType Projection::isSymbolic() const{ return BT_TRUE; }
-
 
 CLOSE_NAMESPACE_ACADO
 

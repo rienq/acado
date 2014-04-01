@@ -47,10 +47,10 @@ Asin::Asin( const Asin &arg ):UnaryOperator(arg){}
 
 Asin::~Asin(){}
 
-returnValue Asin::evaluate( EvaluationBase *x ){
- 
-    x->Asin(*argument);
-    return SUCCESSFUL_RETURN;
+uint Asin::evaluate( EvaluationBase *x, std::vector<uint> &indices, uint base ) {
+
+    x->Asin(indices[base], indices[base+1]);
+    return base+2;
 }
 
 SharedOperator Asin::substitute( SharedOperatorMap &sub ){

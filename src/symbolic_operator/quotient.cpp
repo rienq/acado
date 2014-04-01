@@ -50,10 +50,10 @@ Quotient::Quotient( const Quotient &arg ):BinaryOperator( arg ){}
 
 Quotient::~Quotient(){}
 
-returnValue Quotient::evaluate( EvaluationBase *x ){
- 
-    x->quotient(*a1,*a2);
-    return SUCCESSFUL_RETURN;
+uint Quotient::evaluate( EvaluationBase *x, std::vector<uint> &indices, uint base ) {
+
+    x->quotient(indices[base], indices[base+1], indices[base+2]);
+    return base+3;
 }
 
 SharedOperator Quotient::substitute( SharedOperatorMap &sub ){

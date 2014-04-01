@@ -88,10 +88,6 @@ public:
     
     /** Evaluates the function. */
     template <typename T> std::vector<T> evaluate( const std::vector<T> &x );
-    
-    
-    /** Evaluates the function based on a template map.*/
-    template <typename T> std::vector<T> evaluate( TemplateMap<T>  &x );
 
 
      /** Checks whether the function is a constant. */
@@ -157,36 +153,32 @@ protected:
      DependencyMap          dep;   /**< The dependency map              */
      SharedOperatorVector    in;   /**< The order of the inputs         */
      
+     std::vector<uint> indices;
+
      std::string  globalExportVariableName;   /** Name of the variable that holds intermediate expressions. */
 };
-
-template <typename T> std::vector<T> Function::evaluate( TemplateMap<T> &x ){
-      
-    std::vector<T> result(size());
-    EvaluationTemplate<T> y(&x);
-    
-    for( uint i=0; i<sub.size(); ++i ){
-         sub[i]->evaluate(&y);
-         x[sub[i].get()] = y.res;
-    }
-    
-    for( uint i=0; i<size(); ++i ){
-         f[i]->evaluate(&y);
-         result[i] = y.res;
-    }
-    return result;
-}
 
 template <typename T> std::vector<T> Function::evaluate( const std::vector<T> &x ){
   
     ASSERT( (int) in.size()== x.size());
-    
-    TemplateMap<T> xMap;
-    
+
+    std::vector<T> result(size());
+    std::vector<T> values(sub.size());
     for( uint i=0; i<x.size(); ++i ){
-        xMap[in[i].get()] = x[i];
-    }    
-    return evaluate(xMap);  
+    	values[i] = x[i];
+    }
+
+    EvaluationTemplate<T> evBase(&values);
+    uint base = 0;
+    for( uint i=in.size(); i<sub.size(); ++i ){
+    	base = sub[i]->evaluate(&evBase,indices,base);
+    }
+
+    for( uint i=0; i<size(); ++i ){
+    	// NOTE: the Operators in f are supposed to be evaluated already, since they are also part of sub
+    	result[i] = evBase.get(f[i]->getIndex(dep));
+    }
+    return result;
 }
 
 

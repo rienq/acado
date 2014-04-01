@@ -76,7 +76,7 @@ public:
     ~UserDefinedOperator();
 
     /** Evaluates the expression (templated version) */
-    virtual returnValue evaluate( EvaluationBase *x );
+    virtual uint evaluate( EvaluationBase *x, std::vector<uint> &indices, uint base );
 
 
     /** Automatic Differentiation in forward mode on the symbolic \n
@@ -135,7 +135,8 @@ public:
 
 
      virtual returnValue getArgumentList( DependencyMap &exists,
-                                          SharedOperatorVector &list );
+                                          SharedOperatorVector &list,
+                                          std::vector<uint> &indices  );
 
     /** Asks whether all elements are purely symbolic.                \n
       *                                                               \n
@@ -184,30 +185,31 @@ template <typename T, class Derived> UserDefinedOperator<T,Derived>::UserDefined
 template <typename T, class Derived> UserDefinedOperator<T,Derived>::~UserDefinedOperator(){}
 
 
-template <typename T, class Derived> returnValue UserDefinedOperator<T,Derived>::evaluate( EvaluationBase *x ){
+template <typename T, class Derived> uint UserDefinedOperator<T,Derived>::evaluate( EvaluationBase *x, std::vector<uint> &indices, uint base ){
   
   typedef EvaluationTemplate<T> EvalType; 
   
   EvalType *xx = dynamic_cast<EvalType*>(x);
   if( xx == 0 ) return ACADOERROR( RET_INVALID_ARGUMENTS );
     
-  if( (xx->map)->count(this) == 0 ){
-    
-      std::vector<T> input ( argument.size() );  // input
-      std::vector<T> result( userFcn->size() );  // output
-      
-      for( int i=0; i<argument.size(); ++i ){
-           xx->project(argument(i).element.get());
-           input[i] = xx->res;
-      }
-      userFcn->evaluate( input, result );
-      
-      for( int i=0; i<argument.size(); ++i )
-           (xx->map)->operator[](ID[i].get()) = result[i];
-  }
-  xx->res = (xx->map)->operator[](this);
+  // TODO: BROKEN NOW
+//  if( (xx->map)->count(this) == 0 ){
+//
+//      std::vector<T> input ( argument.size() );  // input
+//      std::vector<T> result( userFcn->size() );  // output
+//
+//      for( int i=0; i<argument.size(); ++i ){
+//           xx->project(argument(i).element.get());
+//           input[i] = xx->res;
+//      }
+//      userFcn->evaluate( input, result );
+//
+//      for( int i=0; i<argument.size(); ++i )
+//           (xx->map)->operator[](ID[i].get()) = result[i];
+//  }
+//  xx->res = (xx->map)->operator[](this);
   
-  return SUCCESSFUL_RETURN;
+  return base+1;
 }
 
 
@@ -255,15 +257,16 @@ template <typename T, class Derived> std::ostream& UserDefinedOperator<T,Derived
    return stream;
 }
     
-template <typename T, class Derived> returnValue UserDefinedOperator<T,Derived>::getArgumentList( DependencyMap &exists, SharedOperatorVector &list ){
-  
-    if( exists[ID[0].get()] != true ){
-         for( int i=0; i<argument.size(); ++i ){
-             (argument(i)).element->getArgumentList(exists,list);
-             list.push_back((argument(i)).element);
-         }
-         exists[ID[0].get()] = true;
-    }
+template <typename T, class Derived> returnValue UserDefinedOperator<T,Derived>::getArgumentList( DependencyMap &exists, SharedOperatorVector &list, std::vector<uint> &indices ){
+
+	// TODO: BROKEN NOW
+//    if( !exists.count(ID[0].get()) ){
+//         for( int i=0; i<argument.size(); ++i ){
+//             (argument(i)).element->getArgumentList(exists,list,indices);
+//             list.push_back((argument(i)).element);
+//         }
+//         exists[ID[0].get()] = true;
+//    }
     return SUCCESSFUL_RETURN;
 }
 

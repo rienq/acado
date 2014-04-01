@@ -58,12 +58,6 @@ returnValue TreeProjection::setArgument( const SharedOperator & arg ){
      return SUCCESSFUL_RETURN;
 }
 
-returnValue TreeProjection::evaluate( EvaluationBase *x ){
-
-    x->project(argument.get());    
-    return SUCCESSFUL_RETURN;
-}
-
 
 Operator& TreeProjection::operator+=( const ScalarExpression& arg ){
 
@@ -185,14 +179,31 @@ returnValue TreeProjection::AD_symmetric( SharedOperator     &l  ,
 
  
 returnValue TreeProjection::getArgumentList( DependencyMap &exists,
-                                             SharedOperatorVector &list  ){
+                                             SharedOperatorVector &list,
+                                             std::vector<uint> &indices ){
 
-    if( exists[this] != true ){
-         argument->getArgumentList(exists,list);
-         list.push_back(argument);
-         exists[this] = true;
-    }
+    argument->getArgumentList(exists,list,indices);
+    argument->addTo(exists, list, argument);
+
     return SUCCESSFUL_RETURN;
+}
+
+
+uint TreeProjection::getIndex( const DependencyMap &exists ) {
+	return argument->getIndex(exists);
+}
+
+
+bool TreeProjection::isIn( const DependencyMap &exists ) {
+	return (exists.count(argument.get()) != 0);
+}
+
+
+void TreeProjection::addTo( DependencyMap &exists, SharedOperatorVector &list, const SharedOperator &element ){
+	if( !isIn(exists) ) {
+		list.push_back(argument);
+		exists[argument.get()] = list.size()-1;
+	}
 }
 
 

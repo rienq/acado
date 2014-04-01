@@ -70,10 +70,6 @@ public:
     virtual ~UnaryOperator();
 
 
-    /** Evaluates the expression (templated version) */
-    virtual returnValue evaluate( EvaluationBase *x ) = 0;
-
-
     /** Automatic Differentiation in forward mode on the symbolic \n
      *  level. This function generates an expression for a        \n
      *  forward derivative                                        \n
@@ -130,7 +126,8 @@ public:
 
 
      virtual returnValue getArgumentList( DependencyMap &exists,
-                                          SharedOperatorVector &list  );
+                                          SharedOperatorVector &list,
+                                          std::vector<uint> &indices );
 
 
     /** Asks whether all elements are purely symbolic.                \n

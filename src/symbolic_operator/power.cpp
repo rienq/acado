@@ -51,10 +51,10 @@ Power::Power( const Power &arg ):BinaryOperator( arg ){ }
 
 Power::~Power(){ }
 
-returnValue Power::evaluate( EvaluationBase *x ){
+uint Power::evaluate( EvaluationBase *x, std::vector<uint> &indices, uint base ) {
 
-    x->power(*a1,*a2);
-    return SUCCESSFUL_RETURN;
+    x->power(indices[base], indices[base+1], indices[base+2]);
+    return base+3;
 }
 
 

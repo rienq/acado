@@ -47,10 +47,10 @@ Sin::Sin( const Sin &arg ):UnaryOperator(arg){}
 
 Sin::~Sin(){}
 
-returnValue Sin::evaluate( EvaluationBase *x ){
+uint Sin::evaluate( EvaluationBase *x, std::vector<uint> &indices, uint base ) {
 
-    x->Sin(*argument);
-    return SUCCESSFUL_RETURN;
+    x->Sin(indices[base], indices[base+1]);
+    return base+2;
 }
 
 

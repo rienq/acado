@@ -156,10 +156,21 @@ returnValue BinaryOperator::AD_symmetric( SharedOperator     &l  ,
 NeutralElement BinaryOperator::isOneOrZero() const{ return NE_NEITHER_ONE_NOR_ZERO; }
 
 returnValue BinaryOperator::getArgumentList( DependencyMap &exists,
-                                             SharedOperatorVector &list  ){
+                                             SharedOperatorVector &list,
+                                             std::vector<uint> &indices ){
 
-    a1->getArgumentList( exists, list );
-    a2->getArgumentList( exists, list );
+    if( !isIn(exists) ) {
+        a1->getArgumentList( exists, list, indices );
+	    a1->addTo(exists, list, a1);
+
+        a2->getArgumentList( exists, list, indices );
+	    a2->addTo(exists, list, a2);
+
+    	indices.push_back(a1->getIndex(exists));
+    	indices.push_back(a2->getIndex(exists));
+    	indices.push_back(list.size()); // It should be the next operator to be added to this list
+    }
+
     return SUCCESSFUL_RETURN;
 }
 

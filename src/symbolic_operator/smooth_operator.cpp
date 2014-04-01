@@ -52,6 +52,7 @@ BooleanType SmoothOperator::isSmooth( ) const
 
 double SmoothOperator::getValue() const{ return INFTY; }
 
+
 CLOSE_NAMESPACE_ACADO
 
 

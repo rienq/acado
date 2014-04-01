@@ -122,9 +122,18 @@ std::ostream& UnaryOperator::print( std::ostream &stream, StringMap &name ) cons
 }
 
 returnValue UnaryOperator::getArgumentList( DependencyMap &exists,
-                                            SharedOperatorVector &list  ){
+                                            SharedOperatorVector &list,
+                                            std::vector<uint> &indices ){
 
-    return argument->getArgumentList(exists,list);
+	if( !isIn(exists) ) {
+		argument->getArgumentList(exists,list,indices);
+	    argument->addTo(exists, list, argument);
+
+		indices.push_back(argument->getIndex(exists));
+		indices.push_back(list.size()); // It should be the next operator to be added to this list
+	}
+
+    return SUCCESSFUL_RETURN;
 }
 
 
