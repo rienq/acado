@@ -80,23 +80,19 @@ typedef std::tr1::shared_ptr<Operator> SharedOperator;
 typedef std::vector<SharedOperator> SharedOperatorVector;
 
 /** Define a 1D map of SharedOperators.*/
-typedef std::map<Operator*,SharedOperator> SharedOperatorMap ;
+typedef std::unordered_map<Operator*,SharedOperator> SharedOperatorMap ;
 
 /** Define a 2D map of SharedOperators.*/
-typedef std::map<Operator*,SharedOperatorMap> SharedOperatorMap2;
+typedef std::unordered_map<Operator*,SharedOperatorMap> SharedOperatorMap2;
 
 /** Define a 3D map of SharedOperators.*/
-typedef std::map<Operator*,SharedOperatorMap2> SharedOperatorMap3;
+typedef std::unordered_map<Operator*,SharedOperatorMap2> SharedOperatorMap3;
 
 /** Define a dependency map.*/
-typedef std::map<Operator*,uint> DependencyMap;
+typedef std::unordered_map<Operator*,uint> DependencyMap;
 
 /** Define a name map.*/
-typedef std::map<const Operator*,std::string> StringMap;
-
-/** Define a template map.*/
-template<typename T>
-using TemplateMap = std::unordered_map<Operator*,T>;
+typedef std::unordered_map<const Operator*,std::string> StringMap;
 
 
 /** Defines the Neutral Elements ZERO and ONE as well as the default
