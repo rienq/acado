@@ -139,8 +139,11 @@ public:
 
 // PROTECTED FUNCTIONS:
 // --------------------
+protected:
      
    void copy( const Function &arg );
+
+   void setupAuxVector( );
      
      
 // PROTECTED MEMBERS:
@@ -154,6 +157,7 @@ protected:
      SharedOperatorVector    in;   /**< The order of the inputs         */
      
      std::vector<uint> indices;
+     std::vector<uint> auxVector;
 
      std::string  globalExportVariableName;   /** Name of the variable that holds intermediate expressions. */
 };
@@ -165,13 +169,13 @@ template <typename T> std::vector<T> Function::evaluate( const std::vector<T> &x
     std::vector<T> result(size());
     std::vector<T> values(sub.size());
     for( uint i=0; i<x.size(); ++i ){
-    	values[i] = x[i];
+    	values[ in[i]->getIndex(dep) ] = x[i];
     }
 
     EvaluationTemplate<T> evBase(&values);
     uint base = 0;
-    for( uint i=in.size(); i<sub.size(); ++i ){
-    	base = sub[i]->evaluate(&evBase,indices,base);
+    for( uint i=0; i<auxVector.size(); ++i ){
+    	base = sub[auxVector[i]]->evaluate(&evBase,indices,base);
     }
 
     for( uint i=0; i<size(); ++i ){

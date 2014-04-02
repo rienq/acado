@@ -76,6 +76,8 @@ Function& Function::operator<<( const Expression &arg ){
          arg(i).element->getArgumentList(dep,sub,indices);
          f.push_back(arg(i).element);
     }
+    setupAuxVector( );
+
     return *this;
 }
 
@@ -105,11 +107,7 @@ returnValue Function::setInput( const Expression &input ){
    in.resize(input.size());
    for( int i=0; i<input.size();++i) in[i] = (input(i)).element;
 
-   sub = SharedOperatorVector();
-   dep = DependencyMap();
-   for( int i=0; i<input.size();++i) {
-	   (input(i)).element->addTo(dep, sub, (input(i)).element);
-   }
+   setupAuxVector( );
 
    return SUCCESSFUL_RETURN; 
 }
@@ -159,9 +157,9 @@ returnValue Function::exportCode( std::ostream& stream,
 
     stream << "void " << fcnName << "(const " << realString << "* in, " << realString << "* out)\n{\n";
 
-    if (sub.size() > 0)
+    if (sub.size() > in.size())
     {
-    	stream << "/* Vector of auxiliary variables; number of elements: " << sub.size() << ". */" << endl;
+    	stream << "/* Vector of auxiliary variables; number of elements: " << sub.size()-in.size() << ". */" << endl;
 
     	if ( allocateMemory )
     	{
@@ -169,7 +167,7 @@ returnValue Function::exportCode( std::ostream& stream,
     		{
     			stream << "static ";
     		}
-    		stream << realString << " a[" << sub.size() << "];";
+    		stream << realString << " a[" << sub.size()-in.size() << "];";
     	}
     	else
     		stream << realString << "* a = " << globalExportVariableName << ";";
@@ -192,20 +190,20 @@ returnValue Function::exportCode( std::ostream& stream,
     // DEFINE THE NAMES OF THE AUXILIARY VARIABLES:
     // --------------------------------------------
     
-    for( uint i=0; i<sub.size(); ++i ){
-         stringstream ss;
-         ss << "a" << "[" << i << "]";
-         auxVarIndividualNames[sub[i].get()] = ss.str();
+    for( uint i=0; i<auxVector.size(); ++i ){
+    	stringstream ss;
+    	ss << "a" << "[" << i << "]";
+    	auxVarIndividualNames[sub[auxVector[i]].get()] = ss.str();
     }
 
     IoFormatter iof( stream );
     iof.set(16, iof.width, ios::scientific);
 
 	// Export intermediate quantities
-	for (uint i=0; i<sub.size(); ++i)
+	for (uint i=0; i<auxVector.size(); ++i)
 	{
 		stream << "a[" << i << "] = ";
-		sub[i]->print( stream, auxVarIndividualNames );
+		sub[auxVector[i]]->print( stream, auxVarIndividualNames );
 		stream << ";" << endl;
 	}
 
@@ -243,8 +241,30 @@ returnValue Function::setGlobalExportVariableName(const std::string& var){
 
 std::string Function::getGlobalExportVariableName( ) const{ return globalExportVariableName; }
 
-unsigned Function::getGlobalExportVariableSize( ) const{ return sub.size(); }
+unsigned Function::getGlobalExportVariableSize( ) const{ return sub.size()-in.size(); }
 
+
+void Function::setupAuxVector( ) {
+	if(sub.size() == 0) {
+		auxVector = std::vector<uint>();
+	}
+	else if(in.size() == 0) {
+		auxVector = std::vector<uint>(sub.size());
+		for( uint i=0; i<sub.size(); i++ ) {
+			auxVector[i] = i;
+		}
+	}
+	else {
+		auxVector = std::vector<uint>(sub.size()-in.size());
+		uint index = 0;
+		for( uint i=0; i<sub.size(); i++ ) {
+			if( std::find(in.begin(), in.end(), sub[i]) == in.end() ) { // sub[i] is not among the inputs
+				auxVector[index] = i;
+				index++;
+			}
+		}
+	}
+}
 
 CLOSE_NAMESPACE_ACADO
 
