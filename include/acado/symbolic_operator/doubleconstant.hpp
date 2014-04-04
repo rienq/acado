@@ -135,6 +135,10 @@ public:
                                           SharedOperatorVector &list,
                                           std::vector<uint> &indices );
 
+
+     virtual returnValue expandTree( DependencyMap &exists,
+                                          SharedOperatorDeque &nodes );
+
      /** Return the value of the constant */
      virtual double getValue() const;
 

@@ -138,6 +138,10 @@ public:
                                           SharedOperatorVector &list,
                                           std::vector<uint> &indices  );
 
+
+     virtual returnValue expandTree( DependencyMap &exists,
+                                          SharedOperatorDeque &nodes );
+
     /** Asks whether all elements are purely symbolic.                \n
       *                                                               \n
       * \return BT_TRUE  if the complete tree is symbolic.            \n
@@ -259,6 +263,7 @@ template <typename T, class Derived> std::ostream& UserDefinedOperator<T,Derived
     
 template <typename T, class Derived> returnValue UserDefinedOperator<T,Derived>::getArgumentList( DependencyMap &exists, SharedOperatorVector &list, std::vector<uint> &indices ){
 
+	ACADOERROR(RET_UNKNOWN_BUG);
 	// TODO: BROKEN NOW
 //    if( !exists.count(ID[0].get()) ){
 //         for( int i=0; i<argument.size(); ++i ){
@@ -267,6 +272,14 @@ template <typename T, class Derived> returnValue UserDefinedOperator<T,Derived>:
 //         }
 //         exists[ID[0].get()] = true;
 //    }
+    return SUCCESSFUL_RETURN;
+}
+
+template <typename T, class Derived> returnValue UserDefinedOperator<T,Derived>::expandTree( DependencyMap &exists, SharedOperatorDeque &nodes ){
+
+	ACADOERROR(RET_UNKNOWN_BUG);
+	// TODO: BROKEN NOW
+
     return SUCCESSFUL_RETURN;
 }
 

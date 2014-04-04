@@ -102,6 +102,13 @@ returnValue Projection::getArgumentList( DependencyMap &exists,
 	return SUCCESSFUL_RETURN;
 }
 
+
+returnValue Projection::expandTree( DependencyMap &exists,
+                                     SharedOperatorDeque &nodes  ){
+
+	return SUCCESSFUL_RETURN;
+}
+
 BooleanType Projection::isSymbolic() const{ return BT_TRUE; }
 
 CLOSE_NAMESPACE_ACADO

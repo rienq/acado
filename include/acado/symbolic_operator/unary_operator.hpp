@@ -130,6 +130,10 @@ public:
                                           std::vector<uint> &indices );
 
 
+     virtual returnValue expandTree( DependencyMap &exists,
+                                       SharedOperatorDeque &nodes );
+
+
     /** Asks whether all elements are purely symbolic.                \n
       *                                                               \n
       * \return BT_TRUE  if the complete tree is symbolic.            \n

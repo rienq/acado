@@ -95,6 +95,10 @@ returnValue NonsmoothOperator::getArgumentList( DependencyMap &exists, SharedOpe
 	return SUCCESSFUL_RETURN;
 }
 
+returnValue NonsmoothOperator::expandTree( DependencyMap &exists, SharedOperatorDeque &nodes ){
+	return SUCCESSFUL_RETURN;
+}
+
 
 BooleanType NonsmoothOperator::isSymbolic() const{  return BT_TRUE; }
 

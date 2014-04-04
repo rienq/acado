@@ -182,12 +182,20 @@ returnValue TreeProjection::getArgumentList( DependencyMap &exists,
                                              SharedOperatorVector &list,
                                              std::vector<uint> &indices ){
 
-	if( !isIn(exists) ) {
-		argument->getArgumentList(exists,list,indices);
-		argument->addTo(exists, list, argument);
-	}
+	ACADOERROR(RET_UNKNOWN_BUG);
 
     return SUCCESSFUL_RETURN;
+}
+
+
+returnValue TreeProjection::expandTree( DependencyMap &exists,
+											SharedOperatorDeque &nodes ){
+
+	if( !isIn(exists) ) {
+		nodes.push_front(argument);
+	}
+
+	return SUCCESSFUL_RETURN;
 }
 
 
@@ -202,10 +210,9 @@ bool TreeProjection::isIn( const DependencyMap &exists ) {
 
 
 void TreeProjection::addTo( DependencyMap &exists, SharedOperatorVector &list, const SharedOperator &element ){
-	if( !isIn(exists) ) {
-		list.push_back(argument);
-		exists[argument.get()] = list.size()-1;
-	}
+
+	list.push_back(argument);
+	exists[argument.get()] = list.size()-1;
 }
 
 

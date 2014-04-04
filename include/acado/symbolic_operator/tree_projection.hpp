@@ -115,6 +115,10 @@ public:
                                           std::vector<uint> &indices  );
 
 
+     virtual returnValue expandTree( DependencyMap &exists,
+                                          SharedOperatorDeque &nodes  );
+
+
      uint getIndex( const DependencyMap &exists );
      bool isIn( const DependencyMap &exists );
      void addTo( DependencyMap &exists, SharedOperatorVector &list, const SharedOperator &element );

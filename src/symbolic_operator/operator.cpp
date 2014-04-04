@@ -234,10 +234,8 @@ bool Operator::isIn( const DependencyMap &exists ) {
 void Operator::addTo( DependencyMap &exists, SharedOperatorVector &list, const SharedOperator &element ){
 	ASSERT( element.get() == this );
 
-	if( !isIn(exists) ) {
-		list.push_back(element);
-		exists[this] = list.size()-1;
-	}
+	list.push_back(element);
+	exists[this] = list.size()-1;
 }
 
 

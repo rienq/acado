@@ -156,20 +156,29 @@ returnValue BinaryOperator::AD_symmetric( SharedOperator     &l  ,
 NeutralElement BinaryOperator::isOneOrZero() const{ return NE_NEITHER_ONE_NOR_ZERO; }
 
 returnValue BinaryOperator::getArgumentList( DependencyMap &exists,
-                                             SharedOperatorVector &list,
-                                             std::vector<uint> &indices ){
+		SharedOperatorVector &list,
+		std::vector<uint> &indices ){
 
-    if( !isIn(exists) ) {
-        a1->getArgumentList( exists, list, indices );
-	    a1->addTo(exists, list, a1);
+	indices.push_back(a1->getIndex(exists));
+	indices.push_back(a2->getIndex(exists));
+	indices.push_back(getIndex(exists));
 
-        a2->getArgumentList( exists, list, indices );
-	    a2->addTo(exists, list, a2);
+	return SUCCESSFUL_RETURN;
+}
 
-    	indices.push_back(a1->getIndex(exists));
-    	indices.push_back(a2->getIndex(exists));
-    	indices.push_back(list.size()); // It should be the next operator to be added to this list
-    }
+returnValue BinaryOperator::expandTree( DependencyMap &exists,
+                                             SharedOperatorDeque &nodes ){
+
+	if( !a1->isIn(exists) ) {
+		uint nSize = nodes.size();
+		a1->expandTree(exists, nodes); // note: this recursive call stops at the next treeprojection
+		if( nodes.size() == nSize ) nodes.push_front(a1); // add leaf
+	}
+	if( !a2->isIn(exists) ) {
+		uint nSize = nodes.size();
+		a2->expandTree(exists, nodes); // note: this recursive call stops at the next treeprojection
+		if( nodes.size() == nSize ) nodes.push_front(a2); // add leaf
+	}
 
     return SUCCESSFUL_RETURN;
 }

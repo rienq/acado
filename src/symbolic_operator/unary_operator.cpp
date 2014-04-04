@@ -125,12 +125,19 @@ returnValue UnaryOperator::getArgumentList( DependencyMap &exists,
                                             SharedOperatorVector &list,
                                             std::vector<uint> &indices ){
 
-	if( !isIn(exists) ) {
-		argument->getArgumentList(exists,list,indices);
-	    argument->addTo(exists, list, argument);
+	indices.push_back(argument->getIndex(exists));
+	indices.push_back(getIndex(exists));
 
-		indices.push_back(argument->getIndex(exists));
-		indices.push_back(list.size()); // It should be the next operator to be added to this list
+    return SUCCESSFUL_RETURN;
+}
+
+returnValue UnaryOperator::expandTree( 	DependencyMap &exists,
+                                            SharedOperatorDeque &nodes ){
+
+	if( !argument->isIn(exists) ) {
+		uint nSize = nodes.size();
+		argument->expandTree(exists, nodes); // note: this recursive call stops at the next treeprojection
+		if( nodes.size() == nSize ) nodes.push_front(argument); // add leaf
 	}
 
     return SUCCESSFUL_RETURN;

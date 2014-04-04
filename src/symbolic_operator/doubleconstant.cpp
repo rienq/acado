@@ -111,9 +111,15 @@ std::ostream& DoubleConstant::print( std::ostream &stream, StringMap &name ) con
 
 returnValue DoubleConstant::getArgumentList( DependencyMap &exists,
                                              SharedOperatorVector &list, std::vector<uint> &indices  ){
-	if( !isIn(exists) ) {
-		indices.push_back(list.size()); // It should be the next operator to be added to this list
-	}
+
+	indices.push_back(getIndex(exists));
+
+	return SUCCESSFUL_RETURN;
+}
+
+
+returnValue DoubleConstant::expandTree( DependencyMap &exists,
+                                     SharedOperatorDeque &nodes  ){
 
 	return SUCCESSFUL_RETURN;
 }

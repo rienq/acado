@@ -148,6 +148,10 @@ public:
                                           std::vector<uint> &indices  ) = 0;
 
 
+     virtual returnValue expandTree( DependencyMap &exists,
+                                       SharedOperatorDeque &nodes  ) = 0;
+
+
 
      /** Return the value of the constant */
      virtual double getValue() const;
