@@ -140,7 +140,7 @@ public:
 
 
      virtual returnValue expandTree( DependencyMap &exists,
-                                          SharedOperatorDeque &nodes );
+    		 SharedOperatorVector &nodes );
 
     /** Asks whether all elements are purely symbolic.                \n
       *                                                               \n
@@ -275,7 +275,7 @@ template <typename T, class Derived> returnValue UserDefinedOperator<T,Derived>:
     return SUCCESSFUL_RETURN;
 }
 
-template <typename T, class Derived> returnValue UserDefinedOperator<T,Derived>::expandTree( DependencyMap &exists, SharedOperatorDeque &nodes ){
+template <typename T, class Derived> returnValue UserDefinedOperator<T,Derived>::expandTree( DependencyMap &exists, SharedOperatorVector &nodes ){
 
 	ACADOERROR(RET_UNKNOWN_BUG);
 	// TODO: BROKEN NOW

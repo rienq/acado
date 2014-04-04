@@ -116,7 +116,7 @@ public:
 
 
      virtual returnValue expandTree( DependencyMap &exists,
-                                          SharedOperatorDeque &nodes  );
+    		 SharedOperatorVector &nodes  );
 
 
      uint getIndex( const DependencyMap &exists );

@@ -189,10 +189,10 @@ returnValue TreeProjection::getArgumentList( DependencyMap &exists,
 
 
 returnValue TreeProjection::expandTree( DependencyMap &exists,
-											SharedOperatorDeque &nodes ){
+		SharedOperatorVector &nodes ){
 
 	if( !isIn(exists) ) {
-		nodes.push_front(argument);
+		nodes.push_back(argument);
 	}
 
 	return SUCCESSFUL_RETURN;

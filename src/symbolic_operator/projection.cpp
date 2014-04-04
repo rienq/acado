@@ -104,7 +104,7 @@ returnValue Projection::getArgumentList( DependencyMap &exists,
 
 
 returnValue Projection::expandTree( DependencyMap &exists,
-                                     SharedOperatorDeque &nodes  ){
+		SharedOperatorVector &nodes  ){
 
 	return SUCCESSFUL_RETURN;
 }

@@ -73,20 +73,20 @@ void Function::copy( const Function &arg ){
 Function& Function::operator<<( const Expression &arg ){
   
 	for( int i=0; i<arg.size(); ++i ){
-		SharedOperatorDeque nodes;
+		SharedOperatorVector nodes;
 		arg(i).element->expandTree(dep,nodes);
 		while( nodes.size() > 0 ) { // not done
 			uint nSize = 0;
 			while( nodes.size() > nSize ) { // nodes were added --> we are not at a leaf of the tree yet
 				nSize = nodes.size();
-				nodes[0]->expandTree(dep,nodes);
+				nodes.back()->expandTree(dep,nodes);
 			}
 			// we are at a leaf of the tree
-			if( !nodes[0]->isIn(dep) ) {
-				nodes[0]->addTo(dep,sub,nodes[0]);
-				nodes[0]->getArgumentList(dep,sub,indices);
+			if( !nodes.back()->isIn(dep) ) {
+				nodes.back()->addTo(dep,sub,nodes.back());
+				nodes.back()->getArgumentList(dep,sub,indices);
 			}
-			nodes.erase(nodes.begin());
+			nodes.erase(nodes.end());
 		}
 		f.push_back(arg(i).element);
 	}

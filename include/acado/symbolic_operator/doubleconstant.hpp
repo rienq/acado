@@ -137,7 +137,7 @@ public:
 
 
      virtual returnValue expandTree( DependencyMap &exists,
-                                          SharedOperatorDeque &nodes );
+    		 SharedOperatorVector &nodes );
 
      /** Return the value of the constant */
      virtual double getValue() const;

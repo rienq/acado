@@ -167,17 +167,17 @@ returnValue BinaryOperator::getArgumentList( DependencyMap &exists,
 }
 
 returnValue BinaryOperator::expandTree( DependencyMap &exists,
-                                             SharedOperatorDeque &nodes ){
+		SharedOperatorVector &nodes ){
 
 	if( !a1->isIn(exists) ) {
 		uint nSize = nodes.size();
 		a1->expandTree(exists, nodes); // note: this recursive call stops at the next treeprojection
-		if( nodes.size() == nSize ) nodes.push_front(a1); // add leaf
+		if( nodes.size() == nSize ) nodes.push_back(a1); // add leaf
 	}
 	if( !a2->isIn(exists) ) {
 		uint nSize = nodes.size();
 		a2->expandTree(exists, nodes); // note: this recursive call stops at the next treeprojection
-		if( nodes.size() == nSize ) nodes.push_front(a2); // add leaf
+		if( nodes.size() == nSize ) nodes.push_back(a2); // add leaf
 	}
 
     return SUCCESSFUL_RETURN;

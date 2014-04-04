@@ -95,7 +95,7 @@ returnValue NonsmoothOperator::getArgumentList( DependencyMap &exists, SharedOpe
 	return SUCCESSFUL_RETURN;
 }
 
-returnValue NonsmoothOperator::expandTree( DependencyMap &exists, SharedOperatorDeque &nodes ){
+returnValue NonsmoothOperator::expandTree( DependencyMap &exists, SharedOperatorVector &nodes ){
 	return SUCCESSFUL_RETURN;
 }
 

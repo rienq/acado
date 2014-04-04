@@ -119,7 +119,7 @@ returnValue DoubleConstant::getArgumentList( DependencyMap &exists,
 
 
 returnValue DoubleConstant::expandTree( DependencyMap &exists,
-                                     SharedOperatorDeque &nodes  ){
+		SharedOperatorVector &nodes  ){
 
 	return SUCCESSFUL_RETURN;
 }

@@ -148,8 +148,8 @@ public:
                                           std::vector<uint> &indices  ) = 0;
 
 
-     virtual returnValue expandTree( DependencyMap &exists,
-                                       SharedOperatorDeque &nodes  ) = 0;
+     virtual returnValue expandTree( 	DependencyMap &exists,
+    		 	 	 	 	 	 	 	 SharedOperatorVector &nodes  ) = 0;
 
 
 

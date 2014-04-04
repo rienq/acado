@@ -136,7 +136,7 @@ public:
 
 
      virtual returnValue expandTree( DependencyMap &exists,
-                                          SharedOperatorDeque &nodes  );
+    		 SharedOperatorVector &nodes  );
 
 
     /** Asks whether all elements are purely symbolic.                \n

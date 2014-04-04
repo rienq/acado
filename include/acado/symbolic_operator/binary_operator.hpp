@@ -132,7 +132,7 @@ public:
 
 
      virtual returnValue expandTree( DependencyMap &exists,
-                                          SharedOperatorDeque &nodes );
+    		 SharedOperatorVector &nodes );
 
 
 

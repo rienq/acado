@@ -38,7 +38,6 @@
 #include <map>
 #include <unordered_map>
 #include <vector>
-#include <deque>
 
 #ifdef _WIN32
     #include <memory>
@@ -79,7 +78,6 @@ typedef std::tr1::shared_ptr<Operator> SharedOperator;
 
 /** Define a vector of SharedOperators.*/
 typedef std::vector<SharedOperator> SharedOperatorVector;
-typedef std::deque<SharedOperator> SharedOperatorDeque;
 
 /** Define a 1D map of SharedOperators.*/
 typedef std::unordered_map<Operator*,SharedOperator> SharedOperatorMap ;

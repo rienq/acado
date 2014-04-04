@@ -132,12 +132,12 @@ returnValue UnaryOperator::getArgumentList( DependencyMap &exists,
 }
 
 returnValue UnaryOperator::expandTree( 	DependencyMap &exists,
-                                            SharedOperatorDeque &nodes ){
+		SharedOperatorVector &nodes ){
 
 	if( !argument->isIn(exists) ) {
 		uint nSize = nodes.size();
 		argument->expandTree(exists, nodes); // note: this recursive call stops at the next treeprojection
-		if( nodes.size() == nSize ) nodes.push_front(argument); // add leaf
+		if( nodes.size() == nSize ) nodes.push_back(argument); // add leaf
 	}
 
     return SUCCESSFUL_RETURN;
